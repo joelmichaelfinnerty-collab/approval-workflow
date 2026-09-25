@@ -115,7 +115,7 @@
   .aw-req { display: inline-flex; align-items: center; gap: var(--ing-space-4); cursor: pointer; font-size: var(--ing-text-sm); font-weight: 500; }
   .aw-req-note { display: block; margin-top: var(--ing-space-2); max-width: 150px; }
 
-  .aw-limit { display: flex; gap: var(--ing-space-3); align-items: center; }
+  .aw-limit { display: flex; gap: var(--ing-space-3); align-items: center; flex-wrap: wrap; }
   .aw-limit select { width: 124px; }
   .aw-money { position: relative; }
   .aw-money span { position: absolute; left: var(--ing-space-4); top: 50%; transform: translateY(-50%); color: var(--ing-ink-500); font-family: var(--ing-font-mono); font-size: var(--ing-text-sm); }
@@ -344,7 +344,7 @@ const NOUN = { budget: 'budgets', realloc: 'budget reallocations', contracts: 'c
 /* ============================ State ============================ */
 let uid = 0;
 const nid = () => 's' + (++uid);
-const step = (o) => Object.assign({ id: nid(), mode: 'people', role: null, people: [], logic: 'all', type: 'approver', optional: [], roleOptional: false, days: null, limit: { op: 'none', value: null } }, o);
+const step = (o) => Object.assign({ id: nid(), mode: 'people', role: null, people: [], logic: 'all', type: 'approver', optional: [], roleOptional: false, days: null, limit: { op: 'none', value: null, max: null } }, o);
 const workflow = (o) => Object.assign({ id: nid(), name: 'Internal Workflow', sequence: true, limits: false, slots: [] }, o);
 
 function seed() {
@@ -361,7 +361,8 @@ function seed() {
     changes: [],
     invoices: [workflow({ name: 'Invoice Approval', limits: true, slots: [
       step({ mode: 'role', role: 'pm', days: 2 }),
-      step({ people: ['jf', 'ml'], logic: 'any', days: 3, limit: { op: 'gt', value: 50000 } }),
+      step({ people: ['ml'], days: 3, limit: { op: 'between', value: 50000, max: 100000 } }),
+      step({ people: ['jf', 'ml'], logic: 'all', days: 3, limit: { op: 'gt', value: 100000 } }),
       step({ people: ['hc'], type: 'reviewer', optional: ['hc'] }),
     ] })],
     submittals: [workflow({ name: 'Submittal Review', slots: [
@@ -406,6 +407,10 @@ function validate(wf, tab) {
     if (s.mode === 'role' && !s.role) { bad.add(s.id); msgs.push(`Step ${n}: choose a role.`); }
     else if (s.mode === 'role' && !holders(s).length) { bad.add(s.id); msgs.push(`Step ${n}: no one on this project holds the ${ROLES[s.role]} role yet. Assign it in Project Directory, or pick specific people.`); }
     else if (s.mode === 'people' && !s.people.length) { bad.add(s.id); msgs.push(`Step ${n}: add at least one person.`); }
+  });
+  if (wf.limits && FIN_TABS.includes(tab)) wf.slots.forEach((s, i) => {
+    if (s.limit.op === 'between' && (s.limit.value == null || s.limit.max == null)) { bad.add(s.id); msgs.push(`Step ${i + 1}: enter both amounts for Between.`); }
+    else if (s.limit.op === 'between' && s.limit.value >= s.limit.max) { bad.add(s.id); msgs.push(`Step ${i + 1}: the first Between amount must be lower than the second.`); }
   });
   wf.slots.forEach((s, i) => { if (s.days != null && !(Number.isInteger(s.days) && s.days >= 1 && s.days <= 365)) { bad.add(s.id); msgs.push(`Step ${i + 1}: review time must be a whole number from 1 to 365, or left blank.`); } });
   if (!wf.slots.some((s) => blocking(s) && s.type === 'approver')) msgs.push('Add at least one Approver step with a required person on it.');
@@ -592,9 +597,11 @@ function slotRow(wf, s, i, t, fin, opts, isBad) {
         <option value="none" ${s.limit.op === 'none' ? 'selected' : ''}>No limit</option>
         <option value="gt" ${s.limit.op === 'gt' ? 'selected' : ''}>Greater than</option>
         <option value="lt" ${s.limit.op === 'lt' ? 'selected' : ''}>Less than</option>
+        <option value="between" ${s.limit.op === 'between' ? 'selected' : ''}>Between</option>
       </select>
-      ${s.limit.op !== 'none' ? `<span class="aw-money"><span>$</span><input class="ing-input is-sm" id="limval-${s.id}" inputmode="decimal" aria-label="Limit amount" data-act="limval" value="${s.limit.value ?? ''}"></span>` : ''}
-    </div>` : '<span class="aw-muted">—</span>'}</td>`;
+      ${s.limit.op !== 'none' ? `<span class="aw-money"><span>$</span><input class="ing-input is-sm" id="limval-${s.id}" inputmode="decimal" aria-label="${s.limit.op === 'between' ? 'More than' : 'Limit amount'}" placeholder="${s.limit.op === 'between' ? 'More than' : ''}" data-act="limval" value="${s.limit.value ?? ''}"></span>` : ''}
+      ${s.limit.op === 'between' ? `<span class="aw-caption">and</span><span class="aw-money"><span>$</span><input class="ing-input is-sm" id="limmax-${s.id}" inputmode="decimal" aria-label="Less than" placeholder="Less than" data-act="limmax" value="${s.limit.max ?? ''}"></span>` : ''}
+    </div>${s.limit.op === 'between' && s.limit.value != null && s.limit.max != null ? `<span class="aw-caption" style="display:block;margin-top:4px">More than ${money(s.limit.value)} and less than ${money(s.limit.max)}</span>` : ''}` : '<span class="aw-muted">—</span>'}</td>`;
 
   return `<tr data-slot="${s.id}" class="${blocking(s) ? '' : 'is-optional'} ${isBad ? 'row-red' : ''}">
     <td class="aw-step">${wf.sequence ? `<span class="aw-drag" data-drag title="Drag to reorder">${icon('drag', 14)}</span>${ordinal(i + 1)}` : '—'}</td>
@@ -637,7 +644,7 @@ function slotSummary(s, t, fin, limitsOn) {
   if (s.type !== 'approver') bits.push(TYPES[s.type].label.toLowerCase());
   if (!blocking(s)) bits.push('optional');
   if (s.days) bits.push(daysLabel(s));
-  const lim = fin && limitsOn && s.limit.op !== 'none' && s.limit.value != null ? ` <span class="num">${s.limit.op === 'gt' ? '>' : '<'} ${money(s.limit.value)}</span>` : '';
+  const lim = fin && limitsOn && s.limit.op !== 'none' && s.limit.value != null ? ` <span class="num">${limitText(s)}</span>` : '';
   return `${esc(who)}${bits.length ? ` <span class="aw-muted">(${bits.join(', ')})</span>` : ''}${lim}`;
 }
 
@@ -726,7 +733,8 @@ $main.addEventListener('change', (e) => {
     }
     case 'type': slot.type = el.value; break;
     case 'days': { const t = el.value.trim(); slot.days = t === '' ? null : Number(t); break; }
-    case 'limop': slot.limit.op = el.value; if (el.value === 'none') slot.limit.value = null; break;
+    case 'limop': slot.limit.op = el.value; if (el.value === 'none') slot.limit.value = null; if (el.value !== 'between') slot.limit.max = null; break;
+    case 'limmax': { const n = parseFloat(el.value.replace(/[^0-9.]/g, '')); slot.limit.max = isNaN(n) ? null : n; break; }
     case 'limval': { const n = parseFloat(el.value.replace(/[^0-9.]/g, '')); slot.limit.value = isNaN(n) ? null : n; break; }
     case 'role': {
       slot.role = el.value || null;
@@ -834,8 +842,13 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$po
 const $drawer = document.getElementById('drawer');
 const $scrim = document.getElementById('scrim');
 
+function limitText(s) {
+  if (s.limit.op === 'between') return `between ${money(s.limit.value)} and ${money(s.limit.max)}`;
+  return `${s.limit.op === 'gt' ? 'over' : 'under'} ${money(s.limit.value)}`;
+}
 function limitApplies(s, wf, amount, fin) {
   if (!fin || !wf.limits || s.limit.op === 'none' || s.limit.value == null) return true;
+  if (s.limit.op === 'between') return s.limit.max == null ? true : amount > s.limit.value && amount < s.limit.max;
   return s.limit.op === 'gt' ? amount > s.limit.value : amount < s.limit.value;
 }
 function slotDone(s, votes) {
@@ -944,7 +957,7 @@ function simStep(x, i, sim) {
   const optTxt = s.mode === 'people' && oq && rq ? ` · ${oq} optional` : '';
   const started = sim.started[s.id];
   const due = s.days && started && (state === 'active' || state === 'notified') ? ` · due ${fmtDate(dueDate(started, s))} (${daysLabel(s)})` : s.days && state === 'waiting' ? ` · ${daysLabel(s)} once it starts` : '';
-  const lim = sim.fin && sim.wf.limits && s.limit.op !== 'none' && s.limit.value != null ? ` · only ${s.limit.op === 'gt' ? 'over' : 'under'} ${money(s.limit.value)}` : '';
+  const lim = sim.fin && sim.wf.limits && s.limit.op !== 'none' && s.limit.value != null ? ` · only ${limitText(s)}` : '';
   const canAct = state === 'active' || state === 'notified';
   return `<div class="aw-sim-step is-${state}">
     <div class="aw-sim-head"><span class="aw-num">${i + 1}</span>

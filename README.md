@@ -23,6 +23,7 @@ Each workflow is a list of **steps**. New per step:
 | More than one person | Add several people, then choose **All** (all of the required approvers) or **Any** (any of the required approvers; the first approval moves it on). |
 | Optional approvers | Each person's chip has a **Required** checkbox. Uncheck it and that person is notified and can approve, but the step doesn't wait for them. A role step has one checkbox for all role holders. A step with no required people doesn't hold up the workflow. |
 | Submittal types | Submittal steps are **Submitter** or **Approver**. Other modules keep Approver / Reviewer. |
+| Between limit | Approval Limit adds **Between** alongside No limit, Greater than and Less than: more than the first amount and less than the second. |
 | Review time | Days a step has to act, counted from when it becomes that step's turn. Blank means no deadline. |
 
 Construction workflows have no concept of a role: no Role column and no **Anyone with role** option. Steps name specific people. **Type** is the second column, after Sequence, on both tabs.
@@ -33,7 +34,7 @@ Construction workflows have no concept of a role: no Role column and no **Anyone
 
 1. **Budget → Owner Budget:** step 1 needs Joel Finnerty **and** JD Martinez. Step 2 is anyone with the Cost Manager role. Step 3 is Hannah Cole as an optional reviewer (Required unchecked).
 2. Click **Simulate approval**. Approve as Joel: step 1 stays open until JD also approves. Hannah Cole is notified at step 3 but doesn't hold anything up.
-3. **Invoices:** step 2 is Joel **or** Marcus with a Greater than $ 50,000.00 limit. In the simulator, change the amount to see that step skipped or included.
+3. **Invoices:** approval limits in dollar bands. Step 2 is Marcus Lee for invoices **between** $ 50,000.00 and $ 100,000.00 (more than the first, less than the second). Step 3 needs Joel **and** Marcus over $ 100,000.00. In the simulator, change the amount to see which steps are included.
 4. **Construction → Submittals:** Tom Becker or Lena Brooks submits, then Rachel Kim and Omar Haddad both approve, then JD or Priya, with Sam Ortiz notified as optional.
 
 ## Open questions
