@@ -365,13 +365,13 @@ function seed() {
       step({ people: ['hc'], type: 'reviewer', optional: ['hc'] }),
     ] })],
     submittals: [workflow({ name: 'Submittal Review', slots: [
-      step({ mode: 'role', role: 'gcpm', type: 'submitter', days: 5 }),
-      step({ mode: 'role', role: 'arch', days: 10 }),
+      step({ people: ['tb', 'lb'], logic: 'any', type: 'submitter', days: 5 }),
+      step({ people: ['rk', 'oh'], logic: 'all', days: 10 }),
       step({ people: ['jd', 'ps', 'so'], logic: 'any', optional: ['so'], days: 5 }),
       step({ people: ['jf'], optional: ['jf'] }),
     ] })],
     drawings: [workflow({ name: 'Drawing Approval', sequence: false, slots: [
-      step({ mode: 'role', role: 'arch', days: 5 }),
+      step({ people: ['rk', 'oh'], logic: 'any', days: 5 }),
       step({ people: ['jd'], type: 'reviewer', days: 1 }),
     ] })],
     inspections: [],
@@ -517,10 +517,10 @@ function wfCard(wf, wi, t) {
           <th><label class="aw-th" style="cursor:pointer">Sequence
             <span class="ing-switch is-sm"><input type="checkbox" id="seq-${wf.id}" data-act="seq" ${wf.sequence ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
           </label><span class="aw-th-note">${wf.sequence ? 'Steps run in order' : 'All steps run at once'}</span></th>
-          ${fin ? `<th><span class="aw-th">Role</span><span class="aw-th-note">Limits who can be picked</span></th>` : ''}
-          <th><span class="aw-th">Who approves <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Named people, or anyone holding the step's role. Uncheck Required to notify someone without waiting on them</span></th>
-          <th><span class="aw-th">Rule <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">When a step has more than one person</span></th>
           <th><span class="aw-th">Type ${t === 'submittals' ? '<span class="ing-tag aw-new">New</span>' : ''}</span>${t === 'submittals' ? '<span class="aw-th-note">Submitters send the package forward; Approvers sign it off</span>' : ''}</th>
+          ${fin ? `<th><span class="aw-th">Role</span><span class="aw-th-note">Limits who can be picked</span></th>` : ''}
+          <th><span class="aw-th">Who approves <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">${fin ? "Named people, or anyone holding the step's role. " : ''}Uncheck Required to notify someone without waiting on them</span></th>
+          <th><span class="aw-th">Rule <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">When a step has more than one person</span></th>
           <th><span class="aw-th">Review time <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Time to act once it's this step's turn. Blank = no deadline</span></th>
           ${fin ? `<th><label class="aw-th" style="cursor:pointer">Approval Limit
             <span class="ing-switch is-sm"><input type="checkbox" id="lim-${wf.id}" data-act="limits" ${wf.limits ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
@@ -544,11 +544,10 @@ function slotRow(wf, s, i, t, fin, opts, isBad) {
 
   const mode = `<div class="ing-segmented aw-mode" role="group" aria-label="How step ${i + 1} is assigned">
       <button class="${s.mode === 'people' ? 'is-active' : ''}" data-act="mode" data-v="people">${icon('user', 12)} Specific people</button>
-      <button class="${s.mode === 'role' ? 'is-active' : ''}" data-act="mode" data-v="role" ${s.role || !fin ? '' : 'disabled title="Choose a role first"'}>${icon('users', 12)} Anyone with role</button>
+      <button class="${s.mode === 'role' ? 'is-active' : ''}" data-act="mode" data-v="role" ${s.role ? '' : 'disabled title="Choose a role first"'}>${icon('users', 12)} Anyone with role</button>
     </div>`;
 
   let who;
-  const inlineRole = !fin && s.mode === 'role' ? `<div style="margin-bottom:6px">${roleSel}</div>` : '';
   if (s.mode === 'role' && !s.role) {
     who = `<div class="aw-caption">Choose the role whose holders can act on this step.</div>`;
   } else if (s.mode === 'role') {
@@ -600,10 +599,10 @@ function slotRow(wf, s, i, t, fin, opts, isBad) {
 
   return `<tr data-slot="${s.id}" class="${blocking(s) ? '' : 'is-optional'} ${isBad ? 'row-red' : ''}">
     <td class="aw-step">${wf.sequence ? `<span class="aw-drag" data-drag title="Drag to reorder">${icon('drag', 14)}</span>${ordinal(i + 1)}` : '—'}</td>
-    ${fin ? `<td>${roleSel}</td>` : ''}
-    <td class="aw-appr">${mode}${inlineRole}${who}</td>
-    <td class="aw-rule">${rule}</td>
     <td>${type}</td>
+    ${fin ? `<td>${roleSel}</td>` : ''}
+    <td class="aw-appr">${fin ? mode : ''}${who}</td>
+    <td class="aw-rule">${rule}</td>
     <td>${review}</td>
     ${limit}
     <td style="text-align:right">${wf.slots.length > 1 ? `<button class="ing-btn is-tertiary is-icon is-sm aw-trash" data-act="delslot" aria-label="Delete step ${i + 1}">${icon('trash')}</button>` : ''}</td>
@@ -688,7 +687,7 @@ $main.addEventListener('click', (e) => {
     case 'tab': S.tab[S.module] = v; closePop(); break;
     case 'bsub': S.budgetSub = v; break;
     case 'banner': S.banner = false; break;
-    case 'mode': slot.mode = v; if (v === 'people' && !FIN_TABS.includes(tabId())) slot.role = null; touch(); break;
+    case 'mode': slot.mode = v; touch(); break;
     case 'logic': slot.logic = v; touch(); break;
     case 'rmperson': slot.people = slot.people.filter((p) => p !== el.dataset.p); slot.optional = slot.optional.filter((p) => p !== el.dataset.p); touch(); break;
     case 'addperson': openPeoplePop(el, wf, slot); return;
@@ -808,12 +807,12 @@ function renderPop(listOnly) {
     return `<div class="aw-pop-group">${esc(c.name)} <span class="ing-tag ${c.tag}">${c.label}</span></div>
       ${ps.map((p) => `<label class="aw-pop-opt" for="pp-${p.id}">
         <input type="checkbox" class="ing-check" id="pp-${p.id}" data-pp="${p.id}" ${s.people.includes(p.id) ? 'checked' : ''}>
-        ${avatar(p, 'is-sm')}<span>${esc(p.name)}<small>${ROLES[p.role]}</small></span></label>`).join('')}`;
+        ${avatar(p, 'is-sm')}<span>${esc(p.name)}${FIN_TABS.includes(tabId()) ? `<small>${ROLES[p.role]}</small>` : ''}</span></label>`).join('')}`;
   }).join('') || `<div class="aw-pop-hint" style="padding-bottom:12px">No one matches “${esc(S.pop.q)}”.</div>`;
   if (listOnly) { $pop.querySelector('.aw-pop-list').innerHTML = list; return; }
   $pop.innerHTML = `
     <div class="aw-pop-search"><div class="ing-input-group"><span class="ing-input-icon">${icon('search')}</span>
-      <input class="ing-input is-sm" id="pop-q" placeholder="Search people or roles" aria-label="Search people"></div></div>
+      <input class="ing-input is-sm" id="pop-q" placeholder="${FIN_TABS.includes(tabId()) ? 'Search people or roles' : 'Search people'}" aria-label="Search people"></div></div>
     ${s.role ? `<div class="aw-pop-hint">Showing people with the ${ROLES[s.role]} role</div>` : ''}
     <div class="aw-pop-list">${list}</div>
     <div class="aw-pop-foot"><button class="ing-btn is-sm" data-popdone>Done</button></div>`;
@@ -960,7 +959,7 @@ function simStep(x, i, sim) {
       else if (canAct) right = `<button class="ing-btn ${state === 'active' ? 'is-primary-teal' : 'is-secondary'} is-sm" data-sim="vote" data-s="${s.id}" data-p="${p.id}">${TYPES[s.type].verb}</button>`;
       if (canAct && !v[p.id] && state === 'active' && !isReq(s, p.id)) right = `<button class="ing-btn is-secondary is-sm" data-sim="vote" data-s="${s.id}" data-p="${p.id}">${TYPES[s.type].verb}</button>`;
       else right = `<span class="aw-caption">Waiting for earlier steps</span>`;
-      return `<li>${avatar(p, 'is-sm')}<div class="grow">${esc(p.name)}<small>${ROLES[p.role]} · ${COMPANIES[p.co].name}${isReq(s, p.id) ? '' : ' · <b>optional</b>'}</small></div>${right}</li>`;
+      return `<li>${avatar(p, 'is-sm')}<div class="grow">${esc(p.name)}<small>${sim.fin ? ROLES[p.role] + ' · ' : ''}${COMPANIES[p.co].name}${isReq(s, p.id) ? '' : ' · <b>optional</b>'}</small></div>${right}</li>`;
     }).join('')}</ul>
   </div>`;
 }
