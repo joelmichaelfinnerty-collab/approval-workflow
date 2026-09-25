@@ -20,8 +20,8 @@ Each workflow is a list of **steps**. New per step:
 | Feature | How it works |
 |---|---|
 | Anyone with a role | Pick a role and choose **Anyone with role**. Anyone holding that role on the project can act, and the first to act completes the step. |
-| More than one person | Add several people, then choose **All** (everyone must approve) or **Any** (the first approval moves it on). |
-| Optional step | Turn **Required** off. Those people are notified and can approve, but the next step doesn't wait for them. |
+| More than one person | Add several people, then choose **All** (all of the required approvers) or **Any** (any of the required approvers; the first approval moves it on). |
+| Optional approvers | Each person's chip has a **Required** checkbox. Uncheck it and that person is notified and can approve, but the step doesn't wait for them. A role step has one checkbox for all role holders. A step with no required people doesn't hold up the workflow. |
 | Submittal types | Submittal steps are **Submitter** or **Approver**. Other modules keep Approver / Reviewer. |
 | Review time | Days a step has to act, counted from when it becomes that step's turn. Blank means no deadline. |
 
@@ -29,10 +29,10 @@ Each workflow is a list of **steps**. New per step:
 
 ## Demo walkthrough
 
-1. **Budget → Owner Budget:** step 1 needs Joel Finnerty **and** JD Martinez. Step 2 is anyone with the Cost Manager role. Step 3 is an optional reviewer.
+1. **Budget → Owner Budget:** step 1 needs Joel Finnerty **and** JD Martinez. Step 2 is anyone with the Cost Manager role. Step 3 is Hannah Cole as an optional reviewer (Required unchecked).
 2. Click **Simulate approval**. Approve as Joel: step 1 stays open until JD also approves. Hannah Cole is notified at step 3 but doesn't hold anything up.
 3. **Invoices:** step 2 is Joel **or** Marcus with a Greater than $ 50,000.00 limit. In the simulator, change the amount to see that step skipped or included.
-4. **Construction → Submittals:** the GC submits, then anyone with the Architect role approves, then JD or Priya.
+4. **Construction → Submittals:** the GC submits, then anyone with the Architect role approves, then any of the required approvers (JD or Priya), with Sam Ortiz notified as optional.
 
 ## Open questions
 
