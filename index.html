@@ -517,7 +517,7 @@ function wfCard(wf, wi, t) {
           <th><label class="aw-th" style="cursor:pointer">Sequence
             <span class="ing-switch is-sm"><input type="checkbox" id="seq-${wf.id}" data-act="seq" ${wf.sequence ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
           </label><span class="aw-th-note">${wf.sequence ? 'Steps run in order' : 'All steps run at once'}</span></th>
-          <th><span class="aw-th">Role</span><span class="aw-th-note">Limits who can be picked</span></th>
+          ${fin ? `<th><span class="aw-th">Role</span><span class="aw-th-note">Limits who can be picked</span></th>` : ''}
           <th><span class="aw-th">Who approves <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Named people, or anyone holding the step's role. Uncheck Required to notify someone without waiting on them</span></th>
           <th><span class="aw-th">Rule <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">When a step has more than one person</span></th>
           <th><span class="aw-th">Type ${t === 'submittals' ? '<span class="ing-tag aw-new">New</span>' : ''}</span>${t === 'submittals' ? '<span class="aw-th-note">Submitters send the package forward; Approvers sign it off</span>' : ''}</th>
@@ -544,11 +544,14 @@ function slotRow(wf, s, i, t, fin, opts, isBad) {
 
   const mode = `<div class="ing-segmented aw-mode" role="group" aria-label="How step ${i + 1} is assigned">
       <button class="${s.mode === 'people' ? 'is-active' : ''}" data-act="mode" data-v="people">${icon('user', 12)} Specific people</button>
-      <button class="${s.mode === 'role' ? 'is-active' : ''}" data-act="mode" data-v="role" ${s.role ? '' : 'disabled title="Choose a role first"'}>${icon('users', 12)} Anyone with role</button>
+      <button class="${s.mode === 'role' ? 'is-active' : ''}" data-act="mode" data-v="role" ${s.role || !fin ? '' : 'disabled title="Choose a role first"'}>${icon('users', 12)} Anyone with role</button>
     </div>`;
 
   let who;
-  if (s.mode === 'role') {
+  const inlineRole = !fin && s.mode === 'role' ? `<div style="margin-bottom:6px">${roleSel}</div>` : '';
+  if (s.mode === 'role' && !s.role) {
+    who = `<div class="aw-caption">Choose the role whose holders can act on this step.</div>`;
+  } else if (s.mode === 'role') {
     who = h.length
       ? `<div class="aw-anyrole">${icon('shield', 14)}<span>Anyone with <b>${ROLES[s.role]}</b> role</span>
            <span class="ing-avatar-group">${h.map((p) => avatar(p)).join('')}</span><span class="aw-caption">${h.length} on project now</span>
@@ -597,8 +600,8 @@ function slotRow(wf, s, i, t, fin, opts, isBad) {
 
   return `<tr data-slot="${s.id}" class="${blocking(s) ? '' : 'is-optional'} ${isBad ? 'row-red' : ''}">
     <td class="aw-step">${wf.sequence ? `<span class="aw-drag" data-drag title="Drag to reorder">${icon('drag', 14)}</span>${ordinal(i + 1)}` : '—'}</td>
-    <td>${roleSel}</td>
-    <td class="aw-appr">${mode}${who}</td>
+    ${fin ? `<td>${roleSel}</td>` : ''}
+    <td class="aw-appr">${mode}${inlineRole}${who}</td>
     <td class="aw-rule">${rule}</td>
     <td>${type}</td>
     <td>${review}</td>
@@ -685,7 +688,7 @@ $main.addEventListener('click', (e) => {
     case 'tab': S.tab[S.module] = v; closePop(); break;
     case 'bsub': S.budgetSub = v; break;
     case 'banner': S.banner = false; break;
-    case 'mode': slot.mode = v; touch(); break;
+    case 'mode': slot.mode = v; if (v === 'people' && !FIN_TABS.includes(tabId())) slot.role = null; touch(); break;
     case 'logic': slot.logic = v; touch(); break;
     case 'rmperson': slot.people = slot.people.filter((p) => p !== el.dataset.p); slot.optional = slot.optional.filter((p) => p !== el.dataset.p); touch(); break;
     case 'addperson': openPeoplePop(el, wf, slot); return;

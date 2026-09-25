@@ -25,6 +25,8 @@ Each workflow is a list of **steps**. New per step:
 | Submittal types | Submittal steps are **Submitter** or **Approver**. Other modules keep Approver / Reviewer. |
 | Review time | Days a step has to act, counted from when it becomes that step's turn. Blank means no deadline. |
 
+Construction workflows have no Role column; there, the role is picked inside the step only when **Anyone with role** is chosen.
+
 "Add User" is renamed **Add Step**. A path line under each workflow summarises its steps.
 
 ## Demo walkthrough
