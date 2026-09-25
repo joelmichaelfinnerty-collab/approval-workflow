@@ -1,0 +1,966 @@
+<title>Flexible Approval Workflows</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<script src="icons.js"></script>
+<style>
+  body { background: var(--ing-ink-50); color: var(--ing-ink-800); }
+  .aw-app { display: flex; min-height: 100vh; }
+
+  /* ---------- Rail ---------- */
+  .aw-rail {
+    width: 56px; flex: none; background: var(--ing-nav-bg);
+    display: flex; flex-direction: column; align-items: center; gap: var(--ing-space-2);
+    padding-block: var(--ing-space-6); position: sticky; top: 0; height: 100vh;
+  }
+  .aw-rail .logo { color: var(--ing-brand); margin-bottom: var(--ing-space-8); display: grid; place-items: center; }
+  .aw-rail a { width: 36px; height: 36px; display: grid; place-items: center; color: var(--ing-nav-ink-muted); border-radius: var(--ing-radius-md); }
+  .aw-rail a:hover { background: var(--ing-nav-item-hover); color: var(--ing-nav-ink); }
+  .aw-rail a.is-active { background: var(--ing-nav-item-active-bg); color: var(--ing-nav-item-active); }
+
+  /* ---------- Main ---------- */
+  .aw-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .aw-top {
+    min-height: 56px; background: var(--ing-ink-0); border-bottom: var(--ing-border);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--ing-space-8);
+    padding-inline: var(--ing-space-12); flex-wrap: wrap;
+  }
+  .aw-top-actions { display: flex; gap: var(--ing-space-4); align-items: center; }
+  .aw-heading { display: flex; align-items: center; gap: var(--ing-space-6); flex-wrap: wrap; padding: var(--ing-space-10) var(--ing-space-12) 0; }
+  .aw-heading h1 { font-size: var(--ing-text-2xl); font-weight: 700; margin: 0; color: var(--ing-ink-900); letter-spacing: -0.01em; text-wrap: balance; }
+  .aw-body { display: flex; gap: var(--ing-space-8); padding: var(--ing-space-8) var(--ing-space-12) var(--ing-space-24); align-items: flex-start; }
+
+  .aw-setnav { width: 220px; flex: none; padding-block: var(--ing-space-4); position: sticky; top: var(--ing-space-8); }
+  .aw-setnav a { display: block; padding: var(--ing-space-3) var(--ing-space-8); color: var(--ing-ink-600); text-decoration: none; font-size: var(--ing-text-base); border-left: 2px solid transparent; }
+  .aw-setnav a:hover { color: var(--ing-ink-900); background: var(--ing-ink-25); }
+  .aw-setnav a.is-active { color: var(--ing-ink-900); font-weight: 600; border-left-color: var(--ing-ink-900); background: var(--ing-ink-25); }
+  .aw-setnav .aw-setnav-note { font-size: var(--ing-text-2xs); color: var(--ing-ink-500); padding: var(--ing-space-1) var(--ing-space-8) var(--ing-space-4) calc(var(--ing-space-8) + 2px); line-height: var(--ing-lh-snug); }
+
+  .aw-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--ing-space-8); }
+
+  .aw-new { background: var(--ing-brand-100); color: var(--ing-brand-700); height: 16px; font-size: var(--ing-text-2xs); font-weight: 600; letter-spacing: 0.02em; text-transform: none; padding: 0 5px; }
+
+  .aw-banner ul { margin: var(--ing-space-2) 0 0; padding-left: var(--ing-space-8); display: grid; gap: var(--ing-space-1); }
+  .aw-banner b { font-weight: 600; }
+
+  /* Module tabs */
+  .aw-module-tabs { background: var(--ing-ink-0); border: var(--ing-border); border-radius: var(--ing-radius-lg); padding-inline: var(--ing-space-6); overflow-x: auto; }
+  .aw-module-tabs.ing-tabs { border-bottom: var(--ing-border); }
+  .aw-module-tabs > button { padding-block: var(--ing-space-8); font-size: var(--ing-text-md); }
+  .aw-module-tabs > button.is-active { border-bottom-color: var(--ing-brand); }
+  .aw-sub { display: flex; justify-content: space-between; align-items: center; gap: var(--ing-space-8); flex-wrap: wrap; }
+  .aw-subtabs { overflow-x: auto; flex: 1; min-width: 0; }
+  .aw-meta { display: flex; align-items: center; gap: var(--ing-space-6); color: var(--ing-ink-500); font-size: var(--ing-text-sm); }
+
+  .aw-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--ing-space-8); flex-wrap: wrap; }
+  .aw-inline { display: inline-flex; align-items: center; gap: var(--ing-space-4); }
+  .aw-caption { font-size: var(--ing-text-xs); color: var(--ing-ink-500); }
+
+  /* Workflow card */
+  .aw-wf { overflow: hidden; }
+  .aw-wf-head { display: flex; justify-content: space-between; align-items: center; gap: var(--ing-space-8); padding: var(--ing-space-8); flex-wrap: wrap; border-bottom: var(--ing-border-subtle); }
+  .aw-wf-name { width: 260px; max-width: 100%; font-weight: 600; }
+  .aw-wf-tools { display: flex; gap: var(--ing-space-2); flex-wrap: wrap; }
+  .aw-wf .ing-alert { margin: var(--ing-space-6) var(--ing-space-8) 0; }
+  .aw-wf .ing-alert ul { margin: 0; padding-left: var(--ing-space-8); }
+
+  .aw-table-wrap { overflow-x: auto; }
+  .aw-slots { min-width: 1220px; }
+  .aw-review { display: flex; gap: var(--ing-space-3); align-items: center; }
+  .aw-review input { width: 56px; text-align: right; font-family: var(--ing-font-mono); font-variant-numeric: tabular-nums; }
+  .aw-review select { width: 124px; }
+  .aw-slots thead th { vertical-align: top; }
+  .aw-th { display: flex; align-items: center; gap: var(--ing-space-3); }
+  .aw-th-note { display: block; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: var(--ing-text-2xs); color: var(--ing-ink-500); margin-top: var(--ing-space-2); white-space: normal; max-width: 240px; }
+  .aw-slots tbody td { vertical-align: top; padding-block: var(--ing-space-6); }
+  .aw-slots tbody tr.is-optional td { background: var(--ing-ink-25); }
+  .aw-slots tbody tr.is-dragover td { box-shadow: inset 0 2px 0 var(--ing-brand); }
+  .aw-step { white-space: nowrap; width: 72px; font-weight: 600; color: var(--ing-ink-700); }
+  .aw-step .aw-drag { color: var(--ing-ink-400); cursor: grab; vertical-align: middle; margin-right: var(--ing-space-2); display: inline-flex; }
+  .aw-step .aw-drag:hover { color: var(--ing-brand); }
+  .aw-step, .aw-step + td { padding-top: calc(var(--ing-space-6) + 7px); }
+
+  .ing-input.is-sm { height: var(--ing-ctl-sm); font-size: var(--ing-text-sm); padding-inline: var(--ing-space-4); }
+  select.ing-input { appearance: auto; }
+  .aw-role-sel { width: 190px; }
+  .aw-type-sel { width: 124px; }
+
+  .aw-appr { min-width: 320px; }
+  .aw-mode { margin-bottom: var(--ing-space-4); }
+  .aw-mode > button:disabled { color: var(--ing-ink-400); cursor: not-allowed; }
+  .ing-segmented > button:focus-visible { outline: none; box-shadow: var(--ing-shadow-focus); }
+  .aw-chips { display: flex; flex-wrap: wrap; gap: var(--ing-space-3); align-items: center; }
+  .aw-chip { display: inline-flex; align-items: center; gap: var(--ing-space-3); height: 26px; padding: 0 var(--ing-space-2) 0 var(--ing-space-1); border: var(--ing-border); border-radius: var(--ing-radius-pill); background: var(--ing-ink-0); font-size: var(--ing-text-sm); }
+  .aw-chip button { border: none; background: none; padding: 0; width: 18px; height: 18px; display: grid; place-items: center; color: var(--ing-ink-400); cursor: pointer; border-radius: 50%; }
+  .aw-chip button:hover { color: var(--ing-status-danger); background: var(--ing-status-danger-bg); }
+  .aw-chip-add { height: 26px; border: 1px dashed var(--ing-ink-300); background: var(--ing-ink-0); color: var(--ing-brand-700); border-radius: var(--ing-radius-pill); padding: 0 var(--ing-space-5); font-size: var(--ing-text-sm); font-weight: 500; display: inline-flex; align-items: center; gap: var(--ing-space-2); cursor: pointer; }
+  .aw-chip-add:hover { border-color: var(--ing-brand); background: var(--ing-brand-50); }
+  .aw-chip-add:focus-visible, .aw-chip button:focus-visible { outline: none; box-shadow: var(--ing-shadow-focus); }
+
+  .aw-anyrole { display: flex; align-items: center; gap: var(--ing-space-4); flex-wrap: wrap; padding: var(--ing-space-3) var(--ing-space-5); background: var(--ing-tint-teal); border-radius: var(--ing-radius-md); font-size: var(--ing-text-sm); }
+  .aw-anyrole b { font-weight: 600; }
+  .aw-anyrole.is-empty { background: var(--ing-tint-red); color: var(--ing-status-danger); }
+
+  .aw-rule { min-width: 150px; }
+  .aw-rule .aw-caption { display: block; margin-top: var(--ing-space-2); }
+  .aw-muted { color: var(--ing-ink-400); }
+
+  .aw-req { display: inline-flex; align-items: center; gap: var(--ing-space-4); cursor: pointer; font-size: var(--ing-text-sm); font-weight: 500; }
+  .aw-req-note { display: block; margin-top: var(--ing-space-2); max-width: 150px; }
+
+  .aw-limit { display: flex; gap: var(--ing-space-3); align-items: center; }
+  .aw-limit select { width: 124px; }
+  .aw-money { position: relative; }
+  .aw-money span { position: absolute; left: var(--ing-space-4); top: 50%; transform: translateY(-50%); color: var(--ing-ink-500); font-family: var(--ing-font-mono); font-size: var(--ing-text-sm); }
+  .aw-money input { width: 130px; padding-left: 22px; font-family: var(--ing-font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+  .aw-trash { color: var(--ing-ink-400); }
+  .aw-trash:hover { color: var(--ing-status-danger); }
+
+  .aw-add { padding: var(--ing-space-4) var(--ing-space-8) var(--ing-space-6); }
+  .aw-add .ing-btn { width: 100%; justify-content: flex-start; background: var(--ing-brand-50); }
+
+  .aw-path { border-top: var(--ing-border-subtle); padding: var(--ing-space-6) var(--ing-space-8); display: flex; align-items: center; gap: var(--ing-space-3); flex-wrap: wrap; background: var(--ing-ink-25); font-size: var(--ing-text-sm); }
+  .aw-path-label { font-size: var(--ing-text-2xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ing-ink-500); margin-right: var(--ing-space-2); }
+  .aw-pchip { display: inline-flex; align-items: center; gap: var(--ing-space-3); padding: var(--ing-space-2) var(--ing-space-5); border-radius: var(--ing-radius-md); background: var(--ing-ink-0); border: var(--ing-border); }
+  .aw-pchip b { font-family: var(--ing-font-mono); font-weight: 500; color: var(--ing-ink-500); }
+  .aw-pchip.is-optional { border-style: dashed; color: var(--ing-ink-500); }
+  .aw-pchip .num { font-family: var(--ing-font-mono); font-variant-numeric: tabular-nums; color: var(--ing-ink-500); }
+  .aw-arrow { color: var(--ing-ink-400); display: inline-flex; }
+
+  /* Empty state */
+  .aw-empty { padding: var(--ing-space-24) var(--ing-space-12); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--ing-space-4); }
+  .aw-empty .ico { width: 44px; height: 44px; border-radius: 50%; background: var(--ing-ink-100); color: var(--ing-ink-500); display: grid; place-items: center; margin-bottom: var(--ing-space-2); }
+  .aw-empty h3 { margin: 0; font-size: var(--ing-text-lg); color: var(--ing-ink-900); }
+  .aw-empty p { margin: 0 0 var(--ing-space-4); color: var(--ing-ink-500); max-width: 52ch; }
+
+  /* Client approval */
+  .aw-client-head { padding: var(--ing-space-8); border-bottom: var(--ing-border-subtle); font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: var(--ing-space-6); flex-wrap: wrap; }
+  .aw-client { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ing-space-6); padding: var(--ing-space-8); }
+  .aw-tile { display: flex; gap: var(--ing-space-5); align-items: flex-start; padding: var(--ing-space-6); border: var(--ing-border); border-radius: var(--ing-radius-lg); cursor: pointer; font-size: var(--ing-text-sm); }
+  .aw-tile:hover { border-color: var(--ing-ink-400); }
+  .aw-tile.is-on { border-color: var(--ing-brand); box-shadow: var(--ing-shadow-focus); }
+  .aw-tile b { display: block; font-size: var(--ing-text-base); margin-bottom: var(--ing-space-1); }
+  .aw-tile span.d { color: var(--ing-ink-500); }
+
+  /* Popover */
+  .aw-pop { position: absolute; z-index: 40; width: 320px; max-width: calc(100vw - 32px); background: var(--ing-ink-0); border: var(--ing-border); border-radius: var(--ing-radius-lg); box-shadow: var(--ing-shadow-md); }
+  .aw-pop-search { padding: var(--ing-space-5); border-bottom: var(--ing-border-subtle); }
+  .aw-pop-hint { padding: var(--ing-space-4) var(--ing-space-6) 0; font-size: var(--ing-text-xs); color: var(--ing-ink-500); }
+  .aw-pop-list { max-height: 320px; overflow-y: auto; padding: var(--ing-space-3) 0; }
+  .aw-pop-group { display: flex; align-items: center; gap: var(--ing-space-3); padding: var(--ing-space-4) var(--ing-space-6) var(--ing-space-2); font-size: var(--ing-text-2xs); font-weight: 600; color: var(--ing-ink-500); text-transform: uppercase; letter-spacing: 0.05em; }
+  .aw-pop-opt { display: flex; align-items: center; gap: var(--ing-space-4); padding: var(--ing-space-3) var(--ing-space-6); cursor: pointer; font-size: var(--ing-text-base); }
+  .aw-pop-opt:hover { background: var(--ing-ink-50); }
+  .aw-pop-opt small { display: block; font-size: var(--ing-text-xs); color: var(--ing-ink-500); }
+  .aw-pop-foot { border-top: var(--ing-border-subtle); padding: var(--ing-space-4) var(--ing-space-6); display: flex; justify-content: flex-end; }
+
+  /* Drawer */
+  .aw-scrim { position: fixed; inset: 0; background: color-mix(in srgb, var(--ing-ink-900) 32%, transparent); z-index: 50; }
+  .aw-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); z-index: 51; background: var(--ing-ink-0); box-shadow: var(--ing-shadow-xl); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
+  .aw-dr-head { padding: var(--ing-space-8) var(--ing-space-10); border-bottom: var(--ing-border); display: flex; justify-content: space-between; gap: var(--ing-space-6); align-items: flex-start; }
+  .aw-dr-head h2 { margin: 0; font-size: var(--ing-text-lg); }
+  .aw-dr-body { flex: 1; overflow-y: auto; padding: var(--ing-space-8) var(--ing-space-10); display: flex; flex-direction: column; gap: var(--ing-space-8); }
+  .aw-dr-foot { border-top: var(--ing-border); padding: var(--ing-space-6) var(--ing-space-10) calc(var(--ing-space-6) + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: space-between; align-items: center; gap: var(--ing-space-6); }
+  .aw-res { border: var(--ing-border); border-radius: var(--ing-radius-lg); padding: var(--ing-space-6) var(--ing-space-8); display: grid; gap: var(--ing-space-3); }
+  .aw-res .id { font-family: var(--ing-font-mono); font-size: var(--ing-text-xs); color: var(--ing-ink-500); }
+  .aw-res .row { display: flex; justify-content: space-between; align-items: center; gap: var(--ing-space-6); flex-wrap: wrap; }
+  .aw-sim-step { border: var(--ing-border); border-radius: var(--ing-radius-lg); overflow: hidden; }
+  .aw-sim-step.is-active { border-color: var(--ing-status-info); }
+  .aw-sim-step.is-done { border-color: var(--ing-status-success-bg); }
+  .aw-sim-step.is-skipped, .aw-sim-step.is-waiting { opacity: 0.72; }
+  .aw-sim-head { display: flex; gap: var(--ing-space-5); align-items: flex-start; padding: var(--ing-space-6) var(--ing-space-8); background: var(--ing-ink-25); }
+  .aw-num { width: 22px; height: 22px; border-radius: 50%; background: var(--ing-ink-100); color: var(--ing-ink-700); display: grid; place-items: center; font-size: var(--ing-text-xs); font-weight: 600; flex: none; }
+  .aw-sim-step.is-active .aw-num { background: var(--ing-status-info); color: var(--ing-ink-0); }
+  .aw-sim-step.is-done .aw-num { background: var(--ing-status-success); color: var(--ing-ink-0); }
+  .aw-sim-head .t { font-weight: 600; }
+  .aw-sim-head .grow { flex: 1; min-width: 0; }
+  .aw-sim-people { list-style: none; margin: 0; padding: 0; }
+  .aw-sim-people li { display: flex; align-items: center; gap: var(--ing-space-5); padding: var(--ing-space-4) var(--ing-space-8); border-top: var(--ing-border-subtle); font-size: var(--ing-text-sm); }
+  .aw-sim-people li .grow { flex: 1; min-width: 0; }
+  .aw-sim-people li small { display: block; color: var(--ing-ink-500); font-size: var(--ing-text-xs); }
+  .aw-log { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ing-space-3); font-size: var(--ing-text-sm); }
+  .aw-log li { display: flex; gap: var(--ing-space-4); color: var(--ing-ink-600); }
+  .aw-log li i { font-style: normal; font-family: var(--ing-font-mono); font-size: var(--ing-text-2xs); color: var(--ing-ink-400); padding-top: 2px; flex: none; }
+  .aw-sec-label { font-size: var(--ing-text-2xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ing-ink-500); margin-bottom: var(--ing-space-4); }
+
+  .aw-toast { position: fixed; left: 50%; bottom: calc(var(--ing-space-12) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ing-ink-900); color: var(--ing-ink-0); padding: var(--ing-space-5) var(--ing-space-8); border-radius: var(--ing-radius-md); box-shadow: var(--ing-shadow-lg); font-size: var(--ing-text-base); z-index: 60; display: flex; gap: var(--ing-space-4); align-items: center; max-width: calc(100vw - 32px); }
+
+  @media (max-width: 1100px) { .aw-setnav { display: none; } }
+  @media (max-width: 720px) {
+    .aw-rail { display: none; }
+    .aw-top, .aw-heading, .aw-body { padding-inline: var(--ing-space-8); }
+    .aw-client { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="aw-app">
+  <nav class="aw-rail" aria-label="Main">
+    <span class="logo" data-icon="users" data-size="22"></span>
+    <a href="#" data-icon="search" aria-label="Search"></a>
+    <a href="#" data-icon="home" aria-label="Home"></a>
+    <a href="#" class="is-active" data-icon="settings" aria-label="Project settings"></a>
+    <a href="#" data-icon="list" aria-label="Lists"></a>
+    <a href="#" data-icon="users" aria-label="Directory"></a>
+    <a href="#" data-icon="folder" aria-label="Documents"></a>
+    <a href="#" data-icon="clipboard" aria-label="Submittals"></a>
+    <a href="#" data-icon="dollar" aria-label="Financials"></a>
+    <a href="#" data-icon="chart" aria-label="Reports"></a>
+  </nav>
+
+  <div class="aw-main">
+    <header class="aw-top">
+      <nav class="ing-breadcrumb" aria-label="Breadcrumb">
+        <a href="#">Projects</a><span class="sep">›</span>
+        <a href="#">Salt Lake City HQ</a><span class="sep">›</span>
+        <a href="#">Project Settings</a><span class="sep">›</span>
+        <span class="current">Approval Workflows</span>
+      </nav>
+      <div class="aw-top-actions">
+        <span class="ing-status is-soft s-warning" id="dirty" hidden>Unsaved changes</span>
+        <button class="ing-btn is-secondary" id="cancel">Cancel</button>
+        <button class="ing-btn is-primary-teal" id="save" disabled>Save</button>
+      </div>
+    </header>
+
+    <div class="aw-heading">
+      <h1>Approval Workflows</h1>
+      <span class="ing-tag is-pill aw-new" style="height:20px">Prototype</span>
+    </div>
+
+    <div class="aw-body">
+      <nav class="aw-setnav ing-card" aria-label="Project settings">
+        <a href="#">Project Information</a>
+        <a href="#">Project Sites</a>
+        <a href="#">Custom Attributes</a>
+        <a href="#">Work Schedule &amp; Holidays</a>
+        <a href="#">RFP</a>
+        <a href="#">Submittals</a>
+        <a href="#">RFI</a>
+        <a href="#">Daily Logs</a>
+        <a href="#">Punch Lists</a>
+        <a href="#" class="is-active">Approval Workflows</a>
+        <div class="aw-setnav-note">Replaces separate Construction Administration and Financial menu items</div>
+        <a href="#">Billing Settings</a>
+        <a href="#">Budget / ACR</a>
+        <a href="#">Integrations</a>
+        <a href="#">Mass Document Export</a>
+      </nav>
+
+      <main class="aw-content" id="main"></main>
+    </div>
+  </div>
+</div>
+
+<div id="pop" class="aw-pop" hidden></div>
+<div id="scrim" class="aw-scrim" hidden></div>
+<aside id="drawer" class="aw-drawer" hidden aria-label="Simulate approval"></aside>
+<div id="toast" class="aw-toast" hidden role="status"></div>
+
+<script>
+/* ============================ Reference data ============================ */
+const COMPANIES = {
+  hq:  { name: 'Salt Lake City HQ team', tag: 'role-rep', label: "Owner's Rep" },
+  gc:  { name: 'Summit Builders', tag: 'role-gc', label: 'GC' },
+  des: { name: 'Studio North Architects', tag: 'role-design', label: 'Design' },
+};
+const ROLES = {
+  pe: 'Project Executive', pm: 'Project Manager', cm: 'Cost Manager', pa: 'Project Accountant',
+  apm: 'Assistant Project Manager', gcpm: 'GC Project Manager', arch: 'Architect', eng: 'Structural Engineer',
+};
+const PEOPLE = [
+  { id: 'jf', name: 'Joel Finnerty', role: 'pe',   co: 'hq',  tone: 'teal' },
+  { id: 'jd', name: 'JD Martinez',   role: 'pm',   co: 'hq',  tone: 'blue' },
+  { id: 'ps', name: 'Priya Shah',    role: 'pm',   co: 'hq',  tone: 'violet' },
+  { id: 'ml', name: 'Marcus Lee',    role: 'cm',   co: 'hq',  tone: 'amber' },
+  { id: 'hc', name: 'Hannah Cole',   role: 'pa',   co: 'hq',  tone: 'pink' },
+  { id: 'so', name: 'Sam Ortiz',     role: 'apm',  co: 'hq',  tone: 'green' },
+  { id: 'tb', name: 'Tom Becker',    role: 'gcpm', co: 'gc',  tone: 'peach' },
+  { id: 'lb', name: 'Lena Brooks',   role: 'gcpm', co: 'gc',  tone: 'slate' },
+  { id: 'rk', name: 'Rachel Kim',    role: 'arch', co: 'des', tone: 'violet' },
+  { id: 'oh', name: 'Omar Haddad',   role: 'arch', co: 'des', tone: 'blue' },
+];
+const byId = (id) => PEOPLE.find((p) => p.id === id);
+const initials = (n) => n.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+const short = (n) => { const [a, b] = n.split(' '); return b ? `${a} ${b[0]}.` : a; };
+const avatar = (p, size = 'is-xs') => `<span class="ing-avatar ${size} tone-${p.tone}" aria-hidden="true">${initials(p.name)}</span>`;
+const money = (n) => '$ ' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const ordinal = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+const daysLabel = (s) => `${s.days} day${s.days === 1 ? '' : 's'}`;
+function dueDate(from, s) {
+  const d = new Date(from); let left = s.days;
+  d.setDate(d.getDate() + left);
+  return d;
+}
+const fmtDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const MODULES = {
+  financial: {
+    label: 'Financial Approval Workflows',
+    tabs: [
+      { id: 'budget', label: 'Budget' },
+      { id: 'realloc', label: 'Budget Reallocations' },
+      { id: 'contracts', label: 'Contracts' },
+      { id: 'changes', label: 'Contract Changes' },
+      { id: 'invoices', label: 'Invoices' },
+    ],
+  },
+  construction: {
+    label: 'Construction Approval Workflows',
+    tabs: [
+      { id: 'submittals', label: 'Submittals' },
+      { id: 'drawings', label: 'Drawings' },
+      { id: 'inspections', label: 'Inspections' },
+    ],
+  },
+};
+const FIN_TABS = ['budget', 'realloc', 'contracts', 'changes', 'invoices'];
+const TYPES = {
+  approver:  { label: 'Approver',  verb: 'Approve',       done: 'Approved' },
+  reviewer:  { label: 'Reviewer',  verb: 'Mark reviewed', done: 'Reviewed' },
+  submitter: { label: 'Submitter', verb: 'Submit',        done: 'Submitted' },
+};
+const typeOptions = (tab) => (tab === 'submittals' ? ['submitter', 'approver'] : ['approver', 'reviewer']);
+const SAMPLES = {
+  budget:      { id: 'BUD-OWN-P2', name: 'Owner Budget — Phase 2 approval', party: 'Salt Lake City HQ', amount: 12480000 },
+  realloc:     { id: 'BR-2026-014', name: 'Move contingency to Level 3 MEP', party: 'Salt Lake City HQ', amount: 185000 },
+  contracts:   { id: 'CT-2026-042', name: 'Curtain wall package', party: 'Summit Builders', amount: 2340000 },
+  changes:     { id: 'CO-2026-017', name: 'Added roof drains at podium', party: 'Summit Builders', amount: 64500 },
+  invoices:    { id: 'INV-2026-118', name: 'Pay application #6', party: 'Summit Builders', amount: 48250 },
+  submittals:  { id: 'SUB-031', name: 'Curtain wall shop drawings, rev 2', party: 'Summit Builders' },
+  drawings:    { id: 'DWG-A-201', name: 'Level 2 floor plan, IFC set', party: 'Studio North Architects' },
+  inspections: { id: 'INS-009', name: 'Level 4 framing inspection', party: 'Summit Builders' },
+};
+const NOUN = { budget: 'budgets', realloc: 'budget reallocations', contracts: 'contracts', changes: 'contract changes', invoices: 'invoices', submittals: 'submittals', drawings: 'drawings', inspections: 'inspections' };
+
+/* ============================ State ============================ */
+let uid = 0;
+const nid = () => 's' + (++uid);
+const step = (o) => Object.assign({ id: nid(), mode: 'people', role: null, people: [], logic: 'all', type: 'approver', required: true, days: null, limit: { op: 'none', value: null } }, o);
+const workflow = (o) => Object.assign({ id: nid(), name: 'Internal Workflow', sequence: true, limits: false, slots: [] }, o);
+
+function seed() {
+  uid = 0;
+  return {
+    'budget:owner': [workflow({ name: 'Owner Budget Approval', slots: [
+      step({ people: ['jf', 'jd'], logic: 'all', days: 3 }),
+      step({ mode: 'role', role: 'cm', days: 2 }),
+      step({ people: ['hc'], type: 'reviewer', required: false }),
+    ] })],
+    'budget:your': [],
+    realloc: [],
+    contracts: [],
+    changes: [],
+    invoices: [workflow({ name: 'Invoice Approval', limits: true, slots: [
+      step({ mode: 'role', role: 'pm', days: 2 }),
+      step({ people: ['jf', 'ml'], logic: 'any', days: 3, limit: { op: 'gt', value: 50000 } }),
+      step({ people: ['hc'], type: 'reviewer', required: false }),
+    ] })],
+    submittals: [workflow({ name: 'Submittal Review', slots: [
+      step({ mode: 'role', role: 'gcpm', type: 'submitter', days: 5 }),
+      step({ mode: 'role', role: 'arch', days: 10 }),
+      step({ people: ['jd', 'ps'], logic: 'any', days: 5 }),
+      step({ people: ['jf'], required: false }),
+    ] })],
+    drawings: [workflow({ name: 'Drawing Approval', sequence: false, slots: [
+      step({ mode: 'role', role: 'arch', days: 5 }),
+      step({ people: ['jd'], type: 'reviewer', days: 1 }),
+    ] })],
+    inspections: [],
+  };
+}
+
+const S = {
+  module: 'financial',
+  tab: { financial: 'budget', construction: 'submittals' },
+  budgetSub: 'owner',
+  data: seed(),
+  client: { 'budget:owner': 'record', 'budget:your': 'disabled', realloc: 'disabled', contracts: 'send', changes: 'record', invoices: 'disabled' },
+  dirty: false,
+  banner: true,
+  pop: null,
+  sim: null,
+  pendingRemove: null,
+};
+const tabId = () => S.tab[S.module];
+const key = () => (tabId() === 'budget' ? 'budget:' + S.budgetSub : tabId());
+const tabOfKey = (k) => k.split(':')[0];
+const holders = (s) => (s.mode === 'role' ? PEOPLE.filter((p) => p.role === s.role) : s.people.map(byId).filter(Boolean));
+
+/* ============================ Validation ============================ */
+function validate(wf, tab) {
+  const msgs = []; const bad = new Set();
+  wf.slots.forEach((s, i) => {
+    const n = i + 1;
+    if (s.mode === 'role' && !s.role) { bad.add(s.id); msgs.push(`Step ${n}: choose a role.`); }
+    else if (s.mode === 'role' && !holders(s).length) { bad.add(s.id); msgs.push(`Step ${n}: no one on this project holds the ${ROLES[s.role]} role yet. Assign it in Project Directory, or pick specific people.`); }
+    else if (s.mode === 'people' && !s.people.length) { bad.add(s.id); msgs.push(`Step ${n}: add at least one person.`); }
+  });
+  wf.slots.forEach((s, i) => { if (s.days != null && !(Number.isInteger(s.days) && s.days >= 1 && s.days <= 365)) { bad.add(s.id); msgs.push(`Step ${i + 1}: review time must be a whole number from 1 to 365, or left blank.`); } });
+  if (!wf.slots.some((s) => s.required && s.type === 'approver')) msgs.push('Add at least one required step with the Approver type.');
+  if (wf.limits && FIN_TABS.includes(tab) && !wf.slots.some((s) => s.required && s.limit.op === 'none')) msgs.push('Set at least one required step to No limit, so every item always has an approver.');
+  return { msgs, bad };
+}
+const hasErrors = () => Object.entries(S.data).some(([k, wfs]) => wfs.some((wf) => validate(wf, tabOfKey(k)).msgs.length));
+
+/* ============================ Rendering: config ============================ */
+const $main = document.getElementById('main');
+const icon = (n, s = 14) => ICONS[n](s);
+
+function render() {
+  const errs = hasErrors();
+  document.getElementById('save').disabled = !S.dirty || errs;
+  document.getElementById('save').title = errs ? 'Fix the highlighted steps before saving' : '';
+  document.getElementById('dirty').hidden = !S.dirty;
+  const mod = MODULES[S.module];
+  const t = tabId();
+  const fin = S.module === 'financial';
+
+  $main.innerHTML = `
+    ${S.banner ? banner() : ''}
+    <div class="ing-tabs aw-module-tabs" role="tablist">
+      ${Object.entries(MODULES).map(([id, m]) => `<button role="tab" aria-selected="${id === S.module}" class="${id === S.module ? 'is-active' : ''}" data-act="module" data-v="${id}">${icon(id === 'financial' ? 'dollar' : 'clipboard')} ${m.label}</button>`).join('')}
+    </div>
+    <div class="aw-sub">
+      <div class="ing-tabs aw-subtabs" role="tablist">
+        ${mod.tabs.map((x) => `<button role="tab" aria-selected="${x.id === t}" class="${x.id === t ? 'is-active' : ''}" data-act="tab" data-v="${x.id}">${x.label}${countFor(x.id) ? ` <span class="count">${countFor(x.id)}</span>` : ''}</button>`).join('')}
+      </div>
+      ${fin ? `<div class="aw-meta">Project currency: <b style="color:var(--ing-ink-800)">USD</b></div>` : ''}
+    </div>
+    ${t === 'budget' ? `
+      <div class="aw-toolbar">
+        <div class="ing-segmented" role="tablist">
+          <button class="${S.budgetSub === 'owner' ? 'is-active' : ''}" data-act="bsub" data-v="owner">Owner Budget</button>
+          <button class="${S.budgetSub === 'your' ? 'is-active' : ''}" data-act="bsub" data-v="your">Your Budget</button>
+        </div>
+      </div>` : ''}
+    ${fin ? costCodeRow() : ''}
+    ${S.data[key()].length ? S.data[key()].map((wf, i) => wfCard(wf, i, t)).join('') : emptyState(t)}
+    ${fin && S.data[key()].length ? clientCard() : ''}
+  `;
+}
+function countFor(tab) {
+  if (tab === 'budget') return S.data['budget:owner'].length + S.data['budget:your'].length;
+  return S.data[tab].length;
+}
+
+function banner() {
+  return `<div class="ing-alert is-teal aw-banner">
+    <span class="ing-alert-icon">${icon('sparkle', 16)}</span>
+    <div class="ing-alert-body">
+      <b>What this prototype adds</b>, marked <span class="ing-tag aw-new">New</span> in the tables below:
+      <ul>
+        <li><b>Anyone with a role:</b> a step can name only a project role. Anyone holding that role on the project can act.</li>
+        <li><b>More than one person per step:</b> pick <i>All</i> (everyone must approve) or <i>Any</i> (the first approval moves it on).</li>
+        <li><b>Optional steps:</b> turn off <i>Required</i> to notify someone who can approve, without holding up the next step.</li>
+        <li><b>Submittals:</b> step types are <i>Submitter</i> or <i>Approver</i>.</li>
+        <li><b>Review time:</b> each step can have a number of days to act, counted from when it becomes that step's turn.</li>
+      </ul>
+      <div class="aw-caption" style="margin-top:6px">Use <b>Simulate approval</b> on any workflow to watch a sample item move through it.</div>
+    </div>
+    <div class="ing-alert-actions"><button class="ing-btn is-tertiary is-sm" data-act="banner">Dismiss</button></div>
+  </div>`;
+}
+
+function costCodeRow() {
+  return `<div class="aw-toolbar">
+    <label class="aw-inline" style="cursor:pointer">
+      <b style="font-weight:600">Cost Codes:</b>
+      <span class="ing-switch"><input type="checkbox" id="costcodes" data-act="costcodes"><span class="track"><span class="thumb"></span></span></span>
+      <span class="aw-caption">Off — use multiple workflows based on the cost codes being approved</span>
+    </label>
+  </div>`;
+}
+
+function emptyState(t) {
+  const label = MODULES[S.module].tabs.find((x) => x.id === t).label + (t === 'budget' ? (S.budgetSub === 'owner' ? ' · Owner Budget' : ' · Your Budget') : '');
+  return `<section class="ing-card aw-empty">
+    <div class="ico">${icon('shield', 20)}</div>
+    <h3>No approval workflow for ${esc(label)} yet</h3>
+    <p>${NOUN[t][0].toUpperCase() + NOUN[t].slice(1)} on this project can't be submitted for approval until a workflow exists.</p>
+    <div class="aw-inline">
+      <button class="ing-btn is-primary-teal" data-act="createwf">${icon('plus')} Create workflow</button>
+      <button class="ing-btn is-secondary" data-act="apply">${icon('cloudUp')} Apply template</button>
+    </div>
+  </section>`;
+}
+
+function wfCard(wf, wi, t) {
+  const fin = FIN_TABS.includes(t);
+  const { msgs, bad } = validate(wf, t);
+  const opts = typeOptions(t);
+  const removing = S.pendingRemove === wf.id;
+  return `<section class="ing-card aw-wf" data-wf="${wi}">
+    <header class="aw-wf-head">
+      <input class="ing-input aw-wf-name" id="name-${wf.id}" aria-label="Workflow name" value="${esc(wf.name)}" data-act="wfname">
+      <div class="aw-wf-tools">
+        <button class="ing-btn is-secondary is-sm" data-act="simulate">${icon('eye')} Simulate approval</button>
+        <button class="ing-btn is-ghost is-sm" data-act="apply">${icon('cloudUp')} Apply Template</button>
+        <button class="ing-btn ${removing ? 'is-danger-secondary' : 'is-ghost'} is-sm" data-act="rmwf">${icon('trash')} ${removing ? 'Click again to remove' : 'Remove Workflow'}</button>
+      </div>
+    </header>
+    ${msgs.length ? `<div class="ing-alert is-danger"><span class="ing-alert-icon">${icon('alert')}</span><div class="ing-alert-body"><ul>${msgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></div></div>` : ''}
+    <div class="aw-table-wrap">
+      <table class="ing-table aw-slots">
+        <thead><tr>
+          <th><label class="aw-th" style="cursor:pointer">Sequence
+            <span class="ing-switch is-sm"><input type="checkbox" id="seq-${wf.id}" data-act="seq" ${wf.sequence ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
+          </label><span class="aw-th-note">${wf.sequence ? 'Steps run in order' : 'All steps run at once'}</span></th>
+          <th><span class="aw-th">Role</span><span class="aw-th-note">Limits who can be picked</span></th>
+          <th><span class="aw-th">Who approves <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Named people, or anyone holding the step's role</span></th>
+          <th><span class="aw-th">Rule <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">When a step has more than one person</span></th>
+          <th><span class="aw-th">Type ${t === 'submittals' ? '<span class="ing-tag aw-new">New</span>' : ''}</span>${t === 'submittals' ? '<span class="aw-th-note">Submitters send the package forward; Approvers sign it off</span>' : ''}</th>
+          <th><span class="aw-th">Required <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Off = notified, doesn't block</span></th>
+          <th><span class="aw-th">Review time <span class="ing-tag aw-new">New</span></span><span class="aw-th-note">Time to act once it's this step's turn. Blank = no deadline</span></th>
+          ${fin ? `<th><label class="aw-th" style="cursor:pointer">Approval Limit
+            <span class="ing-switch is-sm"><input type="checkbox" id="lim-${wf.id}" data-act="limits" ${wf.limits ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
+          </label><span class="aw-th-note">Include the step only when the amount crosses a set limit</span></th>` : ''}
+          <th aria-label="Actions"></th>
+        </tr></thead>
+        <tbody>${wf.slots.map((s, i) => slotRow(wf, s, i, t, fin, opts, bad.has(s.id))).join('')}</tbody>
+      </table>
+    </div>
+    <div class="aw-add"><button class="ing-btn is-ghost" data-act="addslot">${icon('plus')} Add Step</button></div>
+    ${pathStrip(wf, t)}
+  </section>`;
+}
+
+function slotRow(wf, s, i, t, fin, opts, isBad) {
+  const h = holders(s);
+  const roleSel = `<select class="ing-input is-sm aw-role-sel" id="role-${s.id}" aria-label="Role for step ${i + 1}" data-act="role">
+      <option value="">${s.mode === 'role' ? 'Choose a role…' : 'Any role'}</option>
+      ${Object.entries(ROLES).map(([id, n]) => `<option value="${id}" ${s.role === id ? 'selected' : ''}>${n} (${PEOPLE.filter((p) => p.role === id).length})</option>`).join('')}
+    </select>`;
+
+  const mode = `<div class="ing-segmented aw-mode" role="group" aria-label="How step ${i + 1} is assigned">
+      <button class="${s.mode === 'people' ? 'is-active' : ''}" data-act="mode" data-v="people">${icon('user', 12)} Specific people</button>
+      <button class="${s.mode === 'role' ? 'is-active' : ''}" data-act="mode" data-v="role" ${s.role ? '' : 'disabled title="Choose a role first"'}>${icon('users', 12)} Anyone with role</button>
+    </div>`;
+
+  let who;
+  if (s.mode === 'role') {
+    who = h.length
+      ? `<div class="aw-anyrole">${icon('shield', 14)}<span>Anyone with <b>${ROLES[s.role]}</b> role</span>
+           <span class="ing-avatar-group">${h.map((p) => avatar(p)).join('')}</span><span class="aw-caption">${h.length} on project now</span></div>`
+      : `<div class="aw-anyrole is-empty">${icon('alert', 14)} No one holds the ${esc(ROLES[s.role] || '')} role on this project</div>`;
+  } else {
+    who = `<div class="aw-chips">
+        ${h.map((p) => `<span class="aw-chip">${avatar(p)}${esc(p.name)}<button data-act="rmperson" data-p="${p.id}" aria-label="Remove ${esc(p.name)}">${icon('close', 12)}</button></span>`).join('')}
+        <button class="aw-chip-add" data-act="addperson">${icon('plus', 12)} ${h.length ? 'Add' : 'Choose approver'}</button>
+      </div>`;
+  }
+
+  const verb = TYPES[s.type].verb.toLowerCase();
+  let rule;
+  if (s.mode === 'role') {
+    rule = `<span class="ing-status is-soft s-info">Any 1 of ${h.length}</span><span class="aw-caption">The first person with the role to ${verb} completes the step</span>`;
+  } else if (h.length >= 2) {
+    rule = `<div class="ing-segmented" role="group" aria-label="Rule for step ${i + 1}">
+        <button class="${s.logic === 'all' ? 'is-active' : ''}" data-act="logic" data-v="all">All</button>
+        <button class="${s.logic === 'any' ? 'is-active' : ''}" data-act="logic" data-v="any">Any</button>
+      </div>
+      <span class="aw-caption">${s.logic === 'all' ? `All ${h.length} must ${verb}` : `Any 1 of ${h.length} — the first to ${verb} moves it on`}</span>`;
+  } else {
+    rule = `<span class="aw-muted">—</span>`;
+  }
+
+  const type = `<select class="ing-input is-sm aw-type-sel" id="type-${s.id}" aria-label="Type for step ${i + 1}" data-act="type">
+      ${opts.map((o) => `<option value="${o}" ${s.type === o ? 'selected' : ''}>${TYPES[o].label}</option>`).join('')}
+    </select>`;
+
+  const req = `<label class="aw-req" for="req-${s.id}">
+      <span class="ing-switch"><input type="checkbox" id="req-${s.id}" data-act="required" ${s.required ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
+      ${s.required ? 'Required' : 'Optional'}
+    </label>${s.required ? '' : `<span class="aw-caption aw-req-note">Notified and can ${verb}, but the next step doesn't wait</span>`}`;
+
+  const review = `<div class="aw-review">
+      <input class="ing-input is-sm" id="days-${s.id}" inputmode="numeric" placeholder="—" aria-label="Review time for step ${i + 1}" data-act="days" value="${s.days ?? ''}">
+      <span class="aw-caption">days</span>
+    </div>${s.days ? `<span class="aw-caption" style="display:block;margin-top:4px">Reminder 1 day before, flagged late after</span>` : ''}`;
+
+  const limit = !fin ? '' : `<td>${wf.limits ? `<div class="aw-limit">
+      <select class="ing-input is-sm" id="limop-${s.id}" aria-label="Limit for step ${i + 1}" data-act="limop">
+        <option value="none" ${s.limit.op === 'none' ? 'selected' : ''}>No limit</option>
+        <option value="gt" ${s.limit.op === 'gt' ? 'selected' : ''}>Greater than</option>
+        <option value="lt" ${s.limit.op === 'lt' ? 'selected' : ''}>Less than</option>
+      </select>
+      ${s.limit.op !== 'none' ? `<span class="aw-money"><span>$</span><input class="ing-input is-sm" id="limval-${s.id}" inputmode="decimal" aria-label="Limit amount" data-act="limval" value="${s.limit.value ?? ''}"></span>` : ''}
+    </div>` : '<span class="aw-muted">—</span>'}</td>`;
+
+  return `<tr data-slot="${s.id}" class="${s.required ? '' : 'is-optional'} ${isBad ? 'row-red' : ''}">
+    <td class="aw-step">${wf.sequence ? `<span class="aw-drag" data-drag title="Drag to reorder">${icon('drag', 14)}</span>${ordinal(i + 1)}` : '—'}</td>
+    <td>${roleSel}</td>
+    <td class="aw-appr">${mode}${who}</td>
+    <td class="aw-rule">${rule}</td>
+    <td>${type}</td>
+    <td>${req}</td>
+    <td>${review}</td>
+    ${limit}
+    <td style="text-align:right">${wf.slots.length > 1 ? `<button class="ing-btn is-tertiary is-icon is-sm aw-trash" data-act="delslot" aria-label="Delete step ${i + 1}">${icon('trash')}</button>` : ''}</td>
+  </tr>`;
+}
+
+function slotSummary(s, t, fin, limitsOn) {
+  const h = holders(s);
+  let who;
+  if (s.mode === 'role') who = s.role ? `Any ${ROLES[s.role]}` : 'Role not chosen';
+  else if (!h.length) who = 'No one yet';
+  else if (h.length === 1) who = h[0].name;
+  else who = h.map((p) => short(p.name)).join(s.logic === 'all' ? ' + ' : ' or ');
+  const bits = [];
+  if (s.mode === 'people' && h.length > 1) bits.push(s.logic === 'all' ? 'all' : 'any 1');
+  if (s.type !== 'approver') bits.push(TYPES[s.type].label.toLowerCase());
+  if (!s.required) bits.push('optional');
+  if (s.days) bits.push(daysLabel(s));
+  const lim = fin && limitsOn && s.limit.op !== 'none' && s.limit.value != null ? ` <span class="num">${s.limit.op === 'gt' ? '>' : '<'} ${money(s.limit.value)}</span>` : '';
+  return `${esc(who)}${bits.length ? ` <span class="aw-muted">(${bits.join(', ')})</span>` : ''}${lim}`;
+}
+
+function pathStrip(wf, t) {
+  const fin = FIN_TABS.includes(t);
+  const sep = wf.sequence ? `<span class="aw-arrow">${icon('arrowRight', 12)}</span>` : '';
+  return `<footer class="aw-path">
+    <span class="aw-path-label">${wf.sequence ? 'Path' : 'Parallel'}</span>
+    ${wf.slots.map((s, i) => `<span class="aw-pchip ${s.required ? '' : 'is-optional'}"><b>${i + 1}</b>${slotSummary(s, t, fin, wf.limits)}</span>`).join(sep)}
+  </footer>`;
+}
+
+function clientCard() {
+  const k = key(); const v = S.client[k] || 'disabled';
+  const opt = (id, title, d, ic) => `<div class="aw-tile ${v === id ? 'is-on' : ''}" role="radio" tabindex="0" aria-checked="${v === id}" data-act="client" data-v="${id}">
+      <input type="radio" class="ing-check" name="client" id="client-${id}" ${v === id ? 'checked' : ''} tabindex="-1" aria-hidden="true">
+      <div><b>${title}</b><span class="d">${d}</span></div></div>`;
+  return `<section class="ing-card">
+    <div class="aw-client-head">Client Approval <span class="aw-caption" style="font-weight:400">Runs after every required internal step is complete. Unchanged in this prototype.</span></div>
+    <div class="aw-client">
+      ${opt('send', 'Send to Client', 'The item is shared with the client for their own approval.')}
+      ${opt('record', 'Record Approval', "You record the client's decision with name, date, notes and a file.")}
+      ${opt('disabled', 'Disabled', 'No client sign-off. Fully approved once internal approval finishes.')}
+    </div>
+  </section>`;
+}
+
+/* ============================ Interaction: config ============================ */
+function ctx(el) {
+  const card = el.closest('[data-wf]');
+  const wf = card ? S.data[key()][+card.dataset.wf] : null;
+  const row = el.closest('[data-slot]');
+  const slot = wf && row ? wf.slots.find((s) => s.id === row.dataset.slot) : null;
+  return { wf, slot };
+}
+const touch = () => { S.dirty = true; };
+
+$main.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const a = el.dataset.act; const v = el.dataset.v;
+  const { wf, slot } = ctx(el);
+  if (a !== 'rmwf') S.pendingRemove = null;
+  switch (a) {
+    case 'module': S.module = v; closePop(); break;
+    case 'tab': S.tab[S.module] = v; closePop(); break;
+    case 'bsub': S.budgetSub = v; break;
+    case 'banner': S.banner = false; break;
+    case 'mode': slot.mode = v; touch(); break;
+    case 'logic': slot.logic = v; touch(); break;
+    case 'rmperson': slot.people = slot.people.filter((p) => p !== el.dataset.p); touch(); break;
+    case 'addperson': openPeoplePop(el, wf, slot); return;
+    case 'delslot': wf.slots = wf.slots.filter((s) => s !== slot); touch(); break;
+    case 'addslot': wf.slots.push(step({ type: typeOptions(tabId())[tabId() === 'submittals' ? 1 : 0] })); touch(); break;
+    case 'simulate': openSim(wf); return;
+    case 'apply': toast('Applying templates works as it does today — not part of this prototype.'); return;
+    case 'rmwf':
+      if (S.pendingRemove === wf.id) { S.data[key()] = S.data[key()].filter((w) => w !== wf); S.pendingRemove = null; touch(); toast('Workflow removed. Save to confirm.'); }
+      else { S.pendingRemove = wf.id; }
+      break;
+    case 'createwf':
+      S.data[key()].push(workflow({ slots: [step({ type: 'approver' })] })); touch(); break;
+    case 'client': S.client[key()] = v; touch(); break;
+    case 'costcodes': e.preventDefault(); toast('Cost-code workflows work as they do today — not part of this prototype.'); return;
+    default: return;
+  }
+  render();
+});
+
+$main.addEventListener('keydown', (e) => {
+  const tile = e.target.closest('.aw-tile');
+  if (tile && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tile.click(); }
+});
+
+$main.addEventListener('change', (e) => {
+  const el = e.target; const a = el.dataset.act;
+  const { wf, slot } = ctx(el);
+  switch (a) {
+    case 'seq': wf.sequence = el.checked; break;
+    case 'limits': wf.limits = el.checked; if (!el.checked) wf.slots.forEach((s) => (s.limit = { op: 'none', value: null })); break;
+    case 'required': slot.required = el.checked; break;
+    case 'type': slot.type = el.value; break;
+    case 'days': { const t = el.value.trim(); slot.days = t === '' ? null : Number(t); break; }
+    case 'limop': slot.limit.op = el.value; if (el.value === 'none') slot.limit.value = null; break;
+    case 'limval': { const n = parseFloat(el.value.replace(/[^0-9.]/g, '')); slot.limit.value = isNaN(n) ? null : n; break; }
+    case 'role': {
+      slot.role = el.value || null;
+      if (!slot.role && slot.mode === 'role') slot.mode = 'people';
+      if (slot.role && slot.mode === 'people') {
+        const before = slot.people.length;
+        slot.people = slot.people.filter((id) => byId(id).role === slot.role);
+        const gone = before - slot.people.length;
+        if (gone) toast(`Removed ${gone} ${gone === 1 ? "person who doesn't" : "people who don't"} hold the ${ROLES[slot.role]} role.`);
+      }
+      break;
+    }
+    case 'wfname': return;
+    default: return;
+  }
+  touch(); render();
+});
+
+$main.addEventListener('input', (e) => {
+  const el = e.target;
+  if (el.dataset.act === 'wfname') { ctx(el).wf.name = el.value; touch(); document.getElementById('dirty').hidden = false; document.getElementById('save').disabled = hasErrors(); }
+});
+
+/* Drag to reorder steps (sequence on) */
+let dragId = null;
+$main.addEventListener('mousedown', (e) => {
+  const h = e.target.closest('[data-drag]');
+  if (h) h.closest('tr').draggable = true;
+});
+$main.addEventListener('dragstart', (e) => {
+  const tr = e.target.closest('tr[data-slot]'); if (!tr) return;
+  dragId = tr.dataset.slot; e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', dragId); } catch (_) {}
+});
+$main.addEventListener('dragover', (e) => {
+  const tr = e.target.closest('tr[data-slot]'); if (!tr || !dragId) return;
+  e.preventDefault();
+  $main.querySelectorAll('.is-dragover').forEach((r) => r.classList.remove('is-dragover'));
+  tr.classList.add('is-dragover');
+});
+$main.addEventListener('drop', (e) => {
+  const tr = e.target.closest('tr[data-slot]'); if (!tr || !dragId) return;
+  e.preventDefault();
+  const { wf } = ctx(tr);
+  const from = wf.slots.findIndex((s) => s.id === dragId);
+  const to = wf.slots.findIndex((s) => s.id === tr.dataset.slot);
+  if (from > -1 && to > -1 && from !== to) { const [m] = wf.slots.splice(from, 1); wf.slots.splice(to, 0, m); touch(); }
+  dragId = null; render();
+});
+$main.addEventListener('dragend', () => { dragId = null; $main.querySelectorAll('tr[draggable]').forEach((r) => r.removeAttribute('draggable')); $main.querySelectorAll('.is-dragover').forEach((r) => r.classList.remove('is-dragover')); });
+
+/* ============================ People popover ============================ */
+const $pop = document.getElementById('pop');
+function openPeoplePop(anchor, wf, slot) {
+  S.pop = { wfId: wf.id, slotId: slot.id, q: '' };
+  const r = anchor.getBoundingClientRect();
+  $pop.hidden = false;
+  const left = Math.min(r.left + window.scrollX, window.scrollX + document.documentElement.clientWidth - $pop.offsetWidth - 16);
+  $pop.style.left = Math.max(16, left) + 'px';
+  $pop.style.top = r.bottom + window.scrollY + 6 + 'px';
+  renderPop();
+  $pop.querySelector('input').focus();
+}
+function popSlot() {
+  if (!S.pop) return null;
+  for (const wfs of Object.values(S.data)) for (const wf of wfs) if (wf.id === S.pop.wfId) return wf.slots.find((s) => s.id === S.pop.slotId);
+  return null;
+}
+function renderPop(listOnly) {
+  const s = popSlot(); if (!s) return closePop();
+  const q = S.pop.q.toLowerCase();
+  const pool = PEOPLE.filter((p) => (!s.role || p.role === s.role) && (!q || p.name.toLowerCase().includes(q) || ROLES[p.role].toLowerCase().includes(q)));
+  const list = Object.entries(COMPANIES).map(([cid, c]) => {
+    const ps = pool.filter((p) => p.co === cid);
+    if (!ps.length) return '';
+    return `<div class="aw-pop-group">${esc(c.name)} <span class="ing-tag ${c.tag}">${c.label}</span></div>
+      ${ps.map((p) => `<label class="aw-pop-opt" for="pp-${p.id}">
+        <input type="checkbox" class="ing-check" id="pp-${p.id}" data-pp="${p.id}" ${s.people.includes(p.id) ? 'checked' : ''}>
+        ${avatar(p, 'is-sm')}<span>${esc(p.name)}<small>${ROLES[p.role]}</small></span></label>`).join('')}`;
+  }).join('') || `<div class="aw-pop-hint" style="padding-bottom:12px">No one matches “${esc(S.pop.q)}”.</div>`;
+  if (listOnly) { $pop.querySelector('.aw-pop-list').innerHTML = list; return; }
+  $pop.innerHTML = `
+    <div class="aw-pop-search"><div class="ing-input-group"><span class="ing-input-icon">${icon('search')}</span>
+      <input class="ing-input is-sm" id="pop-q" placeholder="Search people or roles" aria-label="Search people"></div></div>
+    ${s.role ? `<div class="aw-pop-hint">Showing people with the ${ROLES[s.role]} role</div>` : ''}
+    <div class="aw-pop-list">${list}</div>
+    <div class="aw-pop-foot"><button class="ing-btn is-sm" data-popdone>Done</button></div>`;
+}
+$pop.addEventListener('input', (e) => { if (e.target.id === 'pop-q') { S.pop.q = e.target.value; renderPop(true); } });
+$pop.addEventListener('change', (e) => {
+  const id = e.target.dataset.pp; if (!id) return;
+  const s = popSlot();
+  s.people = e.target.checked ? [...s.people, id] : s.people.filter((x) => x !== id);
+  touch(); render();
+});
+$pop.addEventListener('click', (e) => { if (e.target.closest('[data-popdone]')) closePop(); });
+function closePop() { S.pop = null; $pop.hidden = true; }
+document.addEventListener('mousedown', (e) => {
+  if (!$pop.hidden && !$pop.contains(e.target) && !e.target.closest('[data-act="addperson"]')) closePop();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$pop.hidden) closePop(); else if (S.sim) closeSim(); } });
+
+/* ============================ Simulator ============================ */
+const $drawer = document.getElementById('drawer');
+const $scrim = document.getElementById('scrim');
+
+function limitApplies(s, wf, amount, fin) {
+  if (!fin || !wf.limits || s.limit.op === 'none' || s.limit.value == null) return true;
+  return s.limit.op === 'gt' ? amount > s.limit.value : amount < s.limit.value;
+}
+function slotDone(s, votes) {
+  const h = holders(s); const v = votes[s.id] || {};
+  if (!h.length) return false;
+  const n = h.filter((p) => v[p.id]).length;
+  return s.mode === 'role' || s.logic === 'any' ? n >= 1 : n === h.length;
+}
+function evaluate(sim) {
+  const { wf, votes, amount, fin } = sim;
+  let blocked = false;
+  const steps = wf.slots.map((s) => {
+    let state;
+    if (!limitApplies(s, wf, amount, fin)) state = 'skipped';
+    else if (slotDone(s, votes)) state = 'done';
+    else if (wf.sequence && blocked) state = 'waiting';
+    else state = s.required ? 'active' : 'notified';
+    if (wf.sequence && s.required && (state === 'active' || state === 'waiting')) blocked = true;
+    return { s, state };
+  });
+  const complete = steps.every((x) => !x.s.required || x.state === 'done' || x.state === 'skipped');
+  return { steps, complete };
+}
+const STATE_CHIP = {
+  waiting:  ['s-neutral', 'Waiting'],
+  active:   ['s-info', 'Ball in court'],
+  notified: ['s-warning', 'Optional · notified'],
+  done:     ['s-success', 'Complete'],
+  skipped:  ['s-neutral', 'Skipped · limit not met'],
+};
+function stamp() { const d = new Date(); return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function logTransitions(before, after, sim) {
+  after.steps.forEach((x, i) => {
+    const prev = before ? before.steps[i].state : null;
+    if (prev === x.state) return;
+    const names = holders(x.s).filter((p) => !(sim.votes[x.s.id] || {})[p.id]).map((p) => p.name);
+    const n = i + 1;
+    if ((x.state === 'active' || x.state === 'notified') && !sim.started[x.s.id]) sim.started[x.s.id] = new Date();
+    const dueTxt = x.s.days ? ` Due ${fmtDate(dueDate(sim.started[x.s.id] || new Date(), x.s))}.` : '';
+    if (x.state === 'active') sim.log.push(`Step ${n}: notified ${list(names)} — action needed${x.s.mode === 'role' ? ` (anyone with the ${ROLES[x.s.role]} role)` : ''}.${dueTxt}`);
+    if (x.state === 'notified') sim.log.push(`Step ${n}: notified ${list(names)} — optional. They can ${TYPES[x.s.type].verb.toLowerCase()}, but nothing waits on them.${dueTxt}`);
+    if (x.state === 'skipped' && prev !== null) sim.log.push(`Step ${n} skipped: ${money(sim.amount)} is outside its limit.`);
+    if (x.state === 'skipped' && prev === null) sim.log.push(`Step ${n} skipped: ${money(sim.amount)} is outside its limit.`);
+    if (x.state === 'done' && prev) {
+      const h = holders(x.s); const pending = h.filter((p) => !(sim.votes[x.s.id] || {})[p.id]);
+      sim.log.push(`Step ${n} complete${pending.length && (x.s.mode === 'role' || x.s.logic === 'any') ? ` — ${list(pending.map((p) => p.name))} no longer needed` : ''}.`);
+    }
+  });
+  if (after.complete && !(before && before.complete)) sim.log.push(`${sim.noun} fully ${sim.tab === 'submittals' ? 'approved' : 'internally approved'}.`);
+}
+function list(a) { return a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+
+function openSim(wf) {
+  closePop();
+  const t = tabId(); const fin = FIN_TABS.includes(t);
+  const sample = SAMPLES[t];
+  S.sim = { wf, tab: t, fin, votes: {}, started: {}, amount: sample.amount || 0, log: [], sample, noun: sample.id };
+  S.sim.log.push(`${sample.id} submitted for approval.`);
+  logTransitions(null, evaluate(S.sim), S.sim);
+  $drawer.hidden = false; $scrim.hidden = false;
+  renderSim();
+  $drawer.querySelector('[data-sim="close"]').focus();
+}
+function closeSim() { S.sim = null; $drawer.hidden = true; $scrim.hidden = true; }
+$scrim.addEventListener('click', closeSim);
+
+function renderSim() {
+  const sim = S.sim; const ev = evaluate(sim); const sm = sim.sample;
+  const status = ev.complete ? ['s-success', sim.tab === 'submittals' ? 'Approved' : 'Internally approved'] : ['s-info', 'In approval'];
+  $drawer.innerHTML = `
+    <div class="aw-dr-head">
+      <div><h2>Simulate approval</h2><div class="aw-caption">${esc(sim.wf.name)} · ${sim.wf.sequence ? 'steps in order' : 'all steps at once'}</div></div>
+      <button class="ing-btn is-tertiary is-icon is-sm" data-sim="close" aria-label="Close">${icon('close')}</button>
+    </div>
+    <div class="aw-dr-body">
+      <div class="aw-res">
+        <div class="row"><span class="id">${sm.id}</span><span class="ing-status is-soft ${status[0]}">${status[1]}</span></div>
+        <div class="row"><b>${esc(sm.name)}</b></div>
+        <div class="row"><span class="aw-caption">${esc(sm.party)}</span>
+          ${sim.fin ? `<label class="aw-inline aw-caption" for="sim-amt">Amount <span class="aw-money"><span>$</span><input class="ing-input is-sm" id="sim-amt" inputmode="decimal" value="${sim.amount}" data-sim="amount"></span></label>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="aw-sec-label">Steps</div>
+        <div style="display:grid;gap:10px">${ev.steps.map((x, i) => simStep(x, i, sim)).join('')}</div>
+      </div>
+      <div>
+        <div class="aw-sec-label">Notifications &amp; activity</div>
+        <ul class="aw-log">${sim.log.slice().reverse().map((l) => `<li><i>${stamp()}</i><span>${esc(l)}</span></li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="aw-dr-foot">
+      <span class="aw-caption">Click an action to approve on that person's behalf.</span>
+      <button class="ing-btn is-secondary is-sm" data-sim="reset">${icon('refresh')} Start over</button>
+    </div>`;
+}
+function simStep(x, i, sim) {
+  const { s, state } = x; const h = holders(s); const v = sim.votes[s.id] || {};
+  const [chipCls, chipTxt] = STATE_CHIP[state];
+  const title = s.mode === 'role' ? `Anyone with the ${ROLES[s.role] || '—'} role` : h.map((p) => p.name).join(s.logic === 'all' ? ' and ' : ' or ') || 'No one assigned';
+  const rule = s.mode === 'role' ? `Any 1 of ${h.length}` : h.length > 1 ? (s.logic === 'all' ? `All ${h.length} must act` : `Any 1 of ${h.length}`) : 'Single person';
+  const started = sim.started[s.id];
+  const due = s.days && started && (state === 'active' || state === 'notified') ? ` · due ${fmtDate(dueDate(started, s))} (${daysLabel(s)})` : s.days && state === 'waiting' ? ` · ${daysLabel(s)} once it starts` : '';
+  const lim = sim.fin && sim.wf.limits && s.limit.op !== 'none' && s.limit.value != null ? ` · only ${s.limit.op === 'gt' ? 'over' : 'under'} ${money(s.limit.value)}` : '';
+  const canAct = state === 'active' || state === 'notified';
+  return `<div class="aw-sim-step is-${state}">
+    <div class="aw-sim-head"><span class="aw-num">${i + 1}</span>
+      <div class="grow"><div class="t">${esc(title)}</div><div class="aw-caption">${rule} · ${TYPES[s.type].label}${s.required ? '' : ' · optional'}${lim}${due}</div></div>
+      <span class="ing-status is-soft ${chipCls}">${chipTxt}</span></div>
+    <ul class="aw-sim-people">${h.map((p) => {
+      let right;
+      if (v[p.id]) right = `<span class="ing-status-dot s-success">${TYPES[s.type].done}</span>`;
+      else if (state === 'done') right = `<span class="aw-caption">Not needed</span>`;
+      else if (state === 'skipped') right = `<span class="aw-caption">Not included</span>`;
+      else if (canAct) right = `<button class="ing-btn ${state === 'active' ? 'is-primary-teal' : 'is-secondary'} is-sm" data-sim="vote" data-s="${s.id}" data-p="${p.id}">${TYPES[s.type].verb}</button>`;
+      else right = `<span class="aw-caption">Waiting for earlier steps</span>`;
+      return `<li>${avatar(p, 'is-sm')}<div class="grow">${esc(p.name)}<small>${ROLES[p.role]} · ${COMPANIES[p.co].name}</small></div>${right}</li>`;
+    }).join('')}</ul>
+  </div>`;
+}
+$drawer.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-sim]'); if (!el || !S.sim) return;
+  const a = el.dataset.sim;
+  if (a === 'close') return closeSim();
+  if (a === 'reset') { const wf = S.sim.wf; return openSim(wf); }
+  if (a === 'vote') {
+    const before = evaluate(S.sim);
+    const p = byId(el.dataset.p); const s = S.sim.wf.slots.find((x) => x.id === el.dataset.s);
+    S.sim.votes[s.id] = { ...(S.sim.votes[s.id] || {}), [p.id]: true };
+    S.sim.log.push(`${p.name} ${TYPES[s.type].done.toLowerCase()} (step ${S.sim.wf.slots.indexOf(s) + 1}${s.required ? '' : ', optional'}).`);
+    logTransitions(before, evaluate(S.sim), S.sim);
+    renderSim();
+  }
+});
+$drawer.addEventListener('change', (e) => {
+  if (e.target.dataset.sim !== 'amount' || !S.sim) return;
+  const n = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
+  const before = evaluate(S.sim);
+  S.sim.amount = isNaN(n) ? 0 : n;
+  logTransitions(before, evaluate(S.sim), S.sim);
+  renderSim();
+});
+
+/* ============================ Top bar ============================ */
+document.getElementById('save').addEventListener('click', () => { S.dirty = false; render(); toast('Approval workflows saved.'); });
+document.getElementById('cancel').addEventListener('click', () => {
+  S.data = seed(); S.dirty = false; S.pendingRemove = null; closePop(); render(); toast('Changes discarded. Sample workflows restored.');
+});
+
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = icon('checkCircle') + `<span>${esc(msg)}</span>`; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 3200);
+}
+
+document.querySelectorAll('[data-icon]').forEach((el) => { el.innerHTML = ICONS[el.dataset.icon](+el.dataset.size || 16); });
+render();
+</script>

@@ -1,0 +1,429 @@
+/* ============================================================
+   Ingenious — Component styles
+   Depends on: tokens.css
+   ============================================================ */
+
+/* ======================== BUTTONS ======================== */
+.ing-btn {
+  --btn-bg: var(--ing-ink-900);
+  --btn-fg: var(--ing-ink-0);
+  --btn-border: var(--ing-ink-900);
+  --btn-bg-hover: #000;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; white-space: nowrap;
+  height: var(--ing-ctl-md);
+  padding: 0 14px;
+  border-radius: var(--ing-radius-md);
+  font-size: 13px; font-weight: 500;
+  line-height: 1;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg); color: var(--btn-fg);
+  cursor: pointer;
+  transition: background var(--ing-dur-fast) var(--ing-ease),
+              box-shadow var(--ing-dur-fast) var(--ing-ease),
+              border-color var(--ing-dur-fast) var(--ing-ease);
+  user-select: none;
+}
+.ing-btn:hover { background: var(--btn-bg-hover); }
+.ing-btn:focus-visible { outline: none; box-shadow: var(--ing-shadow-focus); }
+.ing-btn:disabled, .ing-btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+
+/* Size variants */
+.ing-btn.is-xs { height: var(--ing-ctl-xs); padding: 0 8px;  font-size: 11px; border-radius: var(--ing-radius-sm); }
+.ing-btn.is-sm { height: var(--ing-ctl-sm); padding: 0 10px; font-size: 12px; }
+.ing-btn.is-lg { height: var(--ing-ctl-lg); padding: 0 18px; font-size: 14px; }
+.ing-btn.is-xl { height: var(--ing-ctl-xl); padding: 0 22px; font-size: 14px; }
+
+/* Intent variants */
+.ing-btn.is-secondary {
+  --btn-bg: var(--ing-ink-0); --btn-fg: var(--ing-ink-800);
+  --btn-border: var(--ing-ink-300); --btn-bg-hover: var(--ing-ink-50);
+}
+.ing-btn.is-tertiary {
+  --btn-bg: transparent; --btn-fg: var(--ing-ink-800);
+  --btn-border: transparent; --btn-bg-hover: var(--ing-ink-100);
+}
+.ing-btn.is-ghost {
+  --btn-bg: transparent; --btn-fg: var(--ing-brand);
+  --btn-border: transparent; --btn-bg-hover: var(--ing-brand-50);
+}
+.ing-btn.is-primary-teal {
+  --btn-bg: var(--ing-brand); --btn-fg: #fff;
+  --btn-border: var(--ing-brand); --btn-bg-hover: var(--ing-brand-600);
+}
+.ing-btn.is-danger {
+  --btn-bg: var(--ing-status-danger); --btn-fg: #fff;
+  --btn-border: var(--ing-status-danger); --btn-bg-hover: #B93D3D;
+}
+.ing-btn.is-danger-secondary {
+  --btn-bg: var(--ing-ink-0); --btn-fg: var(--ing-status-danger);
+  --btn-border: var(--ing-status-danger); --btn-bg-hover: var(--ing-status-danger-bg);
+}
+
+/* Icon-only square */
+.ing-btn.is-icon { padding: 0; width: var(--ing-ctl-md); }
+.ing-btn.is-icon.is-xs { width: var(--ing-ctl-xs); }
+.ing-btn.is-icon.is-sm { width: var(--ing-ctl-sm); }
+.ing-btn.is-icon.is-lg { width: var(--ing-ctl-lg); }
+.ing-btn.is-icon.is-xl { width: var(--ing-ctl-xl); }
+
+.ing-btn svg { width: 14px; height: 14px; flex: none; }
+.ing-btn.is-lg svg, .ing-btn.is-xl svg { width: 16px; height: 16px; }
+
+
+/* ======================== INPUTS ======================== */
+.ing-field { display: flex; flex-direction: column; gap: 6px; }
+.ing-field-label {
+  font-size: 12px; font-weight: 500; color: var(--ing-ink-700);
+  display: flex; align-items: center; gap: 4px;
+}
+.ing-field-label .req { color: var(--ing-status-danger); }
+.ing-field-hint { font-size: 11px; color: var(--ing-ink-500); }
+.ing-field-error { font-size: 11px; color: var(--ing-status-danger); display: flex; align-items: center; gap: 4px; }
+
+.ing-input {
+  height: var(--ing-ctl-md);
+  padding: 0 10px;
+  border-radius: var(--ing-radius-md);
+  border: 1px solid var(--ing-ink-300);
+  background: var(--ing-ink-0);
+  color: var(--ing-ink-800);
+  font-size: 13px; line-height: 1;
+  transition: border-color var(--ing-dur-fast) var(--ing-ease),
+              box-shadow var(--ing-dur-fast) var(--ing-ease);
+  width: 100%;
+  outline: none;
+}
+.ing-input::placeholder { color: var(--ing-ink-400); }
+.ing-input:hover { border-color: var(--ing-ink-400); }
+.ing-input:focus { border-color: var(--ing-brand); box-shadow: var(--ing-shadow-focus); }
+.ing-input.is-error { border-color: var(--ing-status-danger); }
+.ing-input.is-error:focus { box-shadow: var(--ing-shadow-focus-danger); }
+.ing-input:disabled { background: var(--ing-ink-50); color: var(--ing-ink-400); cursor: not-allowed; }
+
+.ing-input-group { position: relative; display: flex; align-items: center; }
+.ing-input-group .ing-input-icon {
+  position: absolute; left: 10px; color: var(--ing-ink-400);
+  display: flex; pointer-events: none;
+}
+.ing-input-group .ing-input-icon + .ing-input { padding-left: 32px; }
+.ing-input-group .ing-input-icon.is-right { left: auto; right: 10px; }
+.ing-input-group .ing-input.has-icon-right { padding-right: 32px; }
+
+textarea.ing-input { height: auto; padding: 8px 10px; min-height: 72px; resize: vertical; line-height: 1.5; }
+
+
+/* ======================== CHECKBOX / RADIO / SWITCH ======================== */
+.ing-check {
+  --size: 16px;
+  appearance: none;
+  width: var(--size); height: var(--size);
+  border: 1.5px solid var(--ing-ink-300);
+  border-radius: var(--ing-radius-sm);
+  background: var(--ing-ink-0);
+  cursor: pointer;
+  display: grid; place-items: center; flex: none;
+  transition: all var(--ing-dur-fast) var(--ing-ease);
+  position: relative;
+}
+.ing-check:hover { border-color: var(--ing-ink-500); }
+.ing-check:focus-visible { outline: none; box-shadow: var(--ing-shadow-focus); }
+.ing-check:checked {
+  background: var(--ing-brand); border-color: var(--ing-brand);
+}
+.ing-check:checked::after {
+  content: ""; width: 10px; height: 10px;
+  background: no-repeat center/contain url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 6.2 5 8.5l4.5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.ing-check[type="radio"] { border-radius: var(--ing-radius-pill); }
+.ing-check[type="radio"]:checked { background: var(--ing-ink-0); border-color: var(--ing-brand); border-width: 5px; }
+.ing-check[type="radio"]:checked::after { content: none; }
+.ing-check.is-indeterminate { background: var(--ing-brand); border-color: var(--ing-brand); }
+.ing-check.is-indeterminate::after {
+  content: ""; width: 8px; height: 2px; background: #fff; border-radius: 2px;
+}
+
+.ing-check-row { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--ing-ink-800); }
+.ing-check-row.is-disabled { color: var(--ing-ink-400); cursor: not-allowed; }
+
+/* Switch */
+.ing-switch {
+  --w: 30px; --h: 18px;
+  position: relative; display: inline-block; width: var(--w); height: var(--h); flex: none;
+}
+.ing-switch input { opacity: 0; width: 0; height: 0; }
+.ing-switch .track {
+  position: absolute; inset: 0;
+  background: var(--ing-ink-300);
+  border-radius: var(--ing-radius-pill);
+  transition: background var(--ing-dur-fast) var(--ing-ease);
+  cursor: pointer;
+}
+.ing-switch .thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: calc(var(--h) - 4px); height: calc(var(--h) - 4px);
+  background: #fff; border-radius: 50%;
+  transition: transform var(--ing-dur-base) var(--ing-ease);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.ing-switch input:checked + .track { background: var(--ing-brand); }
+.ing-switch input:checked + .track .thumb { transform: translateX(calc(var(--w) - var(--h))); }
+.ing-switch input:focus-visible + .track { box-shadow: var(--ing-shadow-focus); }
+.ing-switch.is-lg { --w: 36px; --h: 22px; }
+.ing-switch.is-sm { --w: 24px; --h: 14px; }
+
+
+/* ======================== BADGES / TAGS / STATUS ======================== */
+.ing-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 20px; padding: 0 6px;
+  font-size: 11px; font-weight: 500;
+  border-radius: var(--ing-radius-sm);
+  background: var(--ing-ink-100); color: var(--ing-ink-700);
+  white-space: nowrap;
+}
+.ing-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ing-tag.is-pill { border-radius: var(--ing-radius-pill); padding: 0 10px; }
+
+/* Role tag variants */
+.ing-tag.role-rep      { background: var(--ing-role-rep-bg);      color: var(--ing-role-rep); }
+.ing-tag.role-owner    { background: var(--ing-role-owner-bg);    color: var(--ing-role-owner); }
+.ing-tag.role-gc       { background: var(--ing-role-gc-bg);       color: var(--ing-role-gc); }
+.ing-tag.role-sub      { background: var(--ing-role-sub-bg);      color: var(--ing-role-sub); }
+.ing-tag.role-design   { background: var(--ing-role-design-bg);   color: var(--ing-role-design); }
+.ing-tag.role-offsystem{ background: var(--ing-role-offsystem-bg);color: var(--ing-role-offsystem); }
+
+/* Status (solid filled style — used for prominent chips) */
+.ing-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 22px; padding: 0 8px;
+  font-size: 11px; font-weight: 600;
+  border-radius: var(--ing-radius-sm);
+  color: #fff; background: var(--ing-status-neutral);
+  white-space: nowrap;
+}
+.ing-status.s-success  { background: var(--ing-status-success); }
+.ing-status.s-warning  { background: var(--ing-status-warning); }
+.ing-status.s-danger   { background: var(--ing-status-danger); }
+.ing-status.s-info     { background: var(--ing-status-info); }
+.ing-status.s-neutral  { background: var(--ing-status-neutral); }
+.ing-status.s-dark     { background: var(--ing-status-dark); }
+
+/* Soft status */
+.ing-status.is-soft { color: var(--ing-ink-800); }
+.ing-status.is-soft.s-success { background: var(--ing-status-success-bg); color: var(--ing-status-success); }
+.ing-status.is-soft.s-warning { background: var(--ing-status-warning-bg); color: #9A6A1F; }
+.ing-status.is-soft.s-danger  { background: var(--ing-status-danger-bg);  color: var(--ing-status-danger); }
+.ing-status.is-soft.s-info    { background: var(--ing-status-info-bg);    color: var(--ing-status-info); }
+.ing-status.is-soft.s-neutral { background: var(--ing-status-neutral-bg); color: var(--ing-ink-700); }
+.ing-status.is-soft.s-dark    { background: var(--ing-status-dark-bg);    color: var(--ing-status-dark); }
+
+/* Status with outline accent (the cyan-outlined one in the Figma row 6) */
+.ing-status.is-outline { background: transparent; border: 1.5px solid currentColor; color: var(--ing-brand); padding: 0 7px; }
+
+/* Status dot label */
+.ing-status-dot {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ing-ink-700);
+}
+.ing-status-dot::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--ing-status-neutral); }
+.ing-status-dot.s-success::before { background: var(--ing-status-success); }
+.ing-status-dot.s-warning::before { background: var(--ing-status-warning); }
+.ing-status-dot.s-danger::before  { background: var(--ing-status-danger); }
+.ing-status-dot.s-info::before    { background: var(--ing-status-info); }
+.ing-status-dot.s-dark::before    { background: var(--ing-status-dark); }
+
+
+/* ======================== AVATARS ======================== */
+.ing-avatar {
+  --size: 28px;
+  width: var(--size); height: var(--size);
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  color: var(--ing-ink-800);
+  background: var(--ing-tint-peach);
+  flex: none;
+  position: relative;
+  overflow: hidden;
+}
+.ing-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.ing-avatar.is-xs { --size: 20px; font-size: 9px; }
+.ing-avatar.is-sm { --size: 24px; font-size: 10px; }
+.ing-avatar.is-md { --size: 28px; }
+.ing-avatar.is-lg { --size: 36px; font-size: 12px; }
+.ing-avatar.is-xl { --size: 48px; font-size: 14px; }
+
+.ing-avatar.tone-blue   { background: #DDE7FB; color: #2F4FAB; }
+.ing-avatar.tone-pink   { background: #FBDDE7; color: #A23A5A; }
+.ing-avatar.tone-green  { background: #D9EFDF; color: #2A6B3E; }
+.ing-avatar.tone-amber  { background: #FBEBCE; color: #8A5B15; }
+.ing-avatar.tone-violet { background: #E5DBFB; color: #5B3FB4; }
+.ing-avatar.tone-teal   { background: #D4F4F0; color: #0C8578; }
+.ing-avatar.tone-peach  { background: #FCE3D9; color: #B5562F; }
+.ing-avatar.tone-slate  { background: #E2E8F0; color: #475569; }
+
+.ing-avatar-group { display: inline-flex; align-items: center; }
+.ing-avatar-group .ing-avatar {
+  box-shadow: 0 0 0 2px var(--ing-ink-0);
+  margin-left: -8px;
+}
+.ing-avatar-group .ing-avatar:first-child { margin-left: 0; }
+
+.ing-avatar-more {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--size, 28px); height: var(--size, 28px);
+  border-radius: 50%;
+  background: var(--ing-ink-100); color: var(--ing-ink-700);
+  font-size: 10px; font-weight: 600;
+  box-shadow: 0 0 0 2px var(--ing-ink-0);
+  margin-left: -8px;
+}
+.ing-avatar-add {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--size, 28px); height: var(--size, 28px);
+  border-radius: 50%;
+  background: var(--ing-ink-0); color: var(--ing-ink-500);
+  border: 1.5px dashed var(--ing-ink-300);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--ing-ink-0);
+  margin-left: -8px;
+}
+
+
+/* ======================== TOOLTIP ======================== */
+.ing-tooltip {
+  display: inline-block; position: relative;
+  background: var(--ing-ink-900); color: #fff;
+  padding: 6px 10px; border-radius: var(--ing-radius-md);
+  font-size: 12px; line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: var(--ing-shadow-md);
+}
+.ing-tooltip::after {
+  content: ""; position: absolute;
+  width: 8px; height: 8px; background: var(--ing-ink-900);
+  transform: rotate(45deg);
+}
+.ing-tooltip.tt-top::after    { bottom: -4px; left: 50%; margin-left: -4px; }
+.ing-tooltip.tt-bottom::after { top: -4px;    left: 50%; margin-left: -4px; }
+.ing-tooltip.tt-left::after   { right: -4px;  top: 50%; margin-top: -4px; }
+.ing-tooltip.tt-right::after  { left: -4px;   top: 50%; margin-top: -4px; }
+
+
+/* ======================== BREADCRUMB ======================== */
+.ing-breadcrumb {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--ing-ink-500);
+}
+.ing-breadcrumb a { color: var(--ing-ink-500); text-decoration: none; border-radius: 3px; padding: 2px 4px; }
+.ing-breadcrumb a:hover { color: var(--ing-ink-800); background: var(--ing-ink-100); }
+.ing-breadcrumb .sep { color: var(--ing-ink-300); font-size: 10px; }
+.ing-breadcrumb .current { color: var(--ing-ink-800); font-weight: 500; padding: 2px 4px; }
+
+
+/* ======================== CARD ======================== */
+.ing-card {
+  background: var(--ing-ink-0);
+  border: var(--ing-border);
+  border-radius: var(--ing-radius-lg);
+  box-shadow: var(--ing-shadow-xs);
+}
+
+
+/* ======================== TABLE ======================== */
+.ing-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font-size: 13px; color: var(--ing-ink-800);
+  background: var(--ing-ink-0);
+}
+.ing-table thead th {
+  text-align: left; font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--ing-ink-500);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ing-ink-200);
+  background: var(--ing-ink-25);
+  white-space: nowrap;
+}
+.ing-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ing-ink-100);
+  vertical-align: middle;
+}
+.ing-table tbody tr:last-child td { border-bottom: none; }
+.ing-table tbody tr:hover td { background: var(--ing-ink-25); }
+.ing-table tbody tr.row-blue   td { background: var(--ing-tint-blue); }
+.ing-table tbody tr.row-yellow td { background: var(--ing-tint-yellow); }
+.ing-table tbody tr.row-green  td { background: var(--ing-tint-green); }
+.ing-table tbody tr.row-red    td { background: var(--ing-tint-red); }
+.ing-table tbody tr.row-teal   td { background: var(--ing-tint-teal); }
+
+
+/* ======================== NOTIFICATION / ALERT ROW ======================== */
+.ing-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--ing-radius-md);
+  background: var(--ing-ink-0);
+  border: 1px solid var(--ing-ink-200);
+  font-size: 13px;
+  color: var(--ing-ink-800);
+}
+.ing-alert .ing-alert-icon { color: var(--ing-ink-500); flex: none; margin-top: 1px; }
+.ing-alert .ing-alert-body { flex: 1; }
+.ing-alert .ing-alert-actions { display: flex; gap: 6px; align-items: center; flex: none; }
+
+.ing-alert.is-info    { background: var(--ing-tint-blue);   border-color: #BDD3F6; }
+.ing-alert.is-info    .ing-alert-icon { color: var(--ing-status-info); }
+.ing-alert.is-warning { background: var(--ing-tint-yellow); border-color: #F4DB94; }
+.ing-alert.is-warning .ing-alert-icon { color: var(--ing-status-warning); }
+.ing-alert.is-success { background: var(--ing-tint-green);  border-color: #B6DEC8; }
+.ing-alert.is-success .ing-alert-icon { color: var(--ing-status-success); }
+.ing-alert.is-danger  { background: var(--ing-tint-red);    border-color: #F2BBBB; }
+.ing-alert.is-danger  .ing-alert-icon { color: var(--ing-status-danger); }
+.ing-alert.is-teal    { background: var(--ing-tint-teal);   border-color: #B3E0D8; }
+.ing-alert.is-teal    .ing-alert-icon { color: var(--ing-brand); }
+
+/* Accented left stripe variant */
+.ing-alert.is-accent  { border-left-width: 3px; }
+
+
+/* ======================== SEGMENTED / TABS ======================== */
+.ing-segmented {
+  display: inline-flex; padding: 3px;
+  background: var(--ing-ink-100);
+  border-radius: var(--ing-radius-md);
+  gap: 2px;
+}
+.ing-segmented > button {
+  background: transparent; border: none; color: var(--ing-ink-600);
+  padding: 5px 10px; border-radius: var(--ing-radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.ing-segmented > button.is-active { background: var(--ing-ink-0); color: var(--ing-ink-900); box-shadow: var(--ing-shadow-xs); }
+
+.ing-tabs { display: flex; border-bottom: 1px solid var(--ing-ink-200); gap: 0; }
+.ing-tabs > button {
+  background: transparent; border: none; color: var(--ing-ink-500);
+  padding: 10px 14px; font-size: 13px; font-weight: 500;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.ing-tabs > button:hover { color: var(--ing-ink-800); }
+.ing-tabs > button.is-active { color: var(--ing-ink-900); border-bottom-color: var(--ing-ink-900); }
+.ing-tabs > button .count {
+  background: var(--ing-ink-100); color: var(--ing-ink-600);
+  padding: 1px 6px; border-radius: var(--ing-radius-pill); font-size: 10px;
+}
+
+
+/* ======================== KBD ======================== */
+.ing-kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  background: var(--ing-ink-100); border: 1px solid var(--ing-ink-200);
+  border-radius: 3px;
+  font-family: var(--ing-font-mono); font-size: 10px; color: var(--ing-ink-600);
+}

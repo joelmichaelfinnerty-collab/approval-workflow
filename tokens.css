@@ -1,0 +1,198 @@
+/* ============================================================
+   Ingenious — Design System Tokens
+   Single source of truth for colors, type, spacing, radii, shadows.
+   Import with: <link rel="stylesheet" href="/tokens.css" />
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- Brand ---------- */
+  --ing-brand:              #0FB3A1;   /* teal — primary accent, links, focus */
+  --ing-brand-600:          #0E9F8F;
+  --ing-brand-700:          #0C8578;
+  --ing-brand-100:          #D4F4F0;
+  --ing-brand-50:           #EAFAF7;
+
+  /* ---------- Ink / Neutrals (content side) ---------- */
+  --ing-ink-0:              #FFFFFF;
+  --ing-ink-25:             #FBFBFC;
+  --ing-ink-50:             #F5F6F8;
+  --ing-ink-100:            #EEF0F3;
+  --ing-ink-200:            #E2E5EA;
+  --ing-ink-300:            #CBD0D8;
+  --ing-ink-400:            #9AA1AD;
+  --ing-ink-500:            #6B7280;
+  --ing-ink-600:            #4B5563;
+  --ing-ink-700:            #2F3642;
+  --ing-ink-800:            #1C222C;
+  --ing-ink-900:            #0E131B;
+
+  /* ---------- Nav / Dark surface (sidebar) ---------- */
+  --ing-nav-bg:             #0F1722;
+  --ing-nav-bg-2:           #17202D;
+  --ing-nav-border:         #24303F;
+  --ing-nav-ink:            #C9D1DB;
+  --ing-nav-ink-muted:      #7F8998;
+  --ing-nav-item-hover:     #1B2533;
+  --ing-nav-item-active:    #0FB3A1;
+  --ing-nav-item-active-bg: rgba(15, 179, 161, 0.12);
+
+  /* ---------- Status ---------- */
+  --ing-status-success:     #12A48B;
+  --ing-status-success-bg:  #D8F2EC;
+  --ing-status-warning:     #E5A43B;
+  --ing-status-warning-bg:  #FBEFD3;
+  --ing-status-danger:      #DC4C4C;
+  --ing-status-danger-bg:   #FADEDE;
+  --ing-status-info:        #2F6FEB;
+  --ing-status-info-bg:     #DCE7FC;
+  --ing-status-neutral:     #6B7280;
+  --ing-status-neutral-bg:  #E8EAED;
+  --ing-status-dark:        #1C222C;
+  --ing-status-dark-bg:     #D9DBDF;
+
+  /* ---------- Row / Surface tints (used for table row state, callouts) ---------- */
+  --ing-tint-blue:          #EAF1FD;
+  --ing-tint-yellow:        #FFF7E0;
+  --ing-tint-green:         #E4F5EE;
+  --ing-tint-red:           #FCE8E8;
+  --ing-tint-teal:          #E6F6F3;
+  --ing-tint-violet:        #EEE7FB;
+  --ing-tint-peach:         #FCE8DC;
+
+  /* ---------- Role palette (user-role tags) ---------- */
+  --ing-role-rep:           #6366F1;   /* indigo */
+  --ing-role-rep-bg:        #E4E6FB;
+  --ing-role-owner:         #475569;   /* slate */
+  --ing-role-owner-bg:      #E2E8F0;
+  --ing-role-gc:            #E26A4B;   /* peach/orange */
+  --ing-role-gc-bg:         #FCE3D9;
+  --ing-role-sub:           #2F6FEB;   /* blue */
+  --ing-role-sub-bg:        #DCE7FC;
+  --ing-role-design:        #8B5CF6;   /* violet */
+  --ing-role-design-bg:     #ECE2FB;
+  --ing-role-offsystem:     #6B7280;
+  --ing-role-offsystem-bg:  #E8EAED;
+
+  /* ---------- Type ---------- */
+  --ing-font-sans:          'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ing-font-mono:          'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Text scale (px → rem) */
+  --ing-text-2xs:           10px;   /* micro labels */
+  --ing-text-xs:            11px;   /* tags, badge copy */
+  --ing-text-sm:            12px;   /* dense tables */
+  --ing-text-base:          13px;   /* default body (UI) */
+  --ing-text-md:            14px;   /* default body (reading) */
+  --ing-text-lg:            16px;
+  --ing-text-xl:            18px;
+  --ing-text-2xl:           22px;
+  --ing-text-3xl:           28px;
+  --ing-text-4xl:           36px;
+
+  --ing-lh-tight:           1.2;
+  --ing-lh-snug:            1.35;
+  --ing-lh-normal:          1.5;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --ing-space-0:            0;
+  --ing-space-1:            2px;
+  --ing-space-2:            4px;
+  --ing-space-3:            6px;
+  --ing-space-4:            8px;
+  --ing-space-5:            10px;
+  --ing-space-6:            12px;
+  --ing-space-8:            16px;
+  --ing-space-10:           20px;
+  --ing-space-12:           24px;
+  --ing-space-16:           32px;
+  --ing-space-20:           40px;
+  --ing-space-24:           48px;
+  --ing-space-32:           64px;
+
+  /* ---------- Radii ---------- */
+  --ing-radius-xs:          2px;
+  --ing-radius-sm:          4px;
+  --ing-radius-md:          6px;   /* buttons, inputs */
+  --ing-radius-lg:          8px;   /* cards */
+  --ing-radius-xl:          12px;  /* modals, large cards */
+  --ing-radius-2xl:         16px;
+  --ing-radius-pill:        999px;
+
+  /* ---------- Borders ---------- */
+  --ing-border:             1px solid var(--ing-ink-200);
+  --ing-border-strong:      1px solid var(--ing-ink-300);
+  --ing-border-subtle:      1px solid var(--ing-ink-100);
+
+  /* ---------- Shadows ---------- */
+  --ing-shadow-xs:          0 1px 0 rgba(14, 19, 27, 0.04);
+  --ing-shadow-sm:          0 1px 2px rgba(14, 19, 27, 0.06), 0 1px 1px rgba(14, 19, 27, 0.04);
+  --ing-shadow-md:          0 4px 8px -2px rgba(14, 19, 27, 0.08), 0 2px 4px -2px rgba(14, 19, 27, 0.04);
+  --ing-shadow-lg:          0 12px 24px -6px rgba(14, 19, 27, 0.12), 0 4px 8px -4px rgba(14, 19, 27, 0.06);
+  --ing-shadow-xl:          0 24px 48px -12px rgba(14, 19, 27, 0.18);
+  --ing-shadow-focus:       0 0 0 3px rgba(15, 179, 161, 0.28);
+  --ing-shadow-focus-danger:0 0 0 3px rgba(220, 76, 76, 0.28);
+
+  /* ---------- Control heights (keeps UI rhythm) ---------- */
+  --ing-ctl-xs:             22px;
+  --ing-ctl-sm:             28px;
+  --ing-ctl-md:             32px;   /* default */
+  --ing-ctl-lg:             38px;
+  --ing-ctl-xl:             44px;
+
+  /* ---------- Motion ---------- */
+  --ing-ease:               cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ing-dur-fast:           120ms;
+  --ing-dur-base:           180ms;
+  --ing-dur-slow:           280ms;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  font-family: var(--ing-font-sans);
+  font-size: var(--ing-text-base);
+  color: var(--ing-ink-800);
+  background: var(--ing-ink-50);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+}
+button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+/* ---------- Preview page chrome (used across cards) ---------- */
+.preview-page {
+  min-height: 100vh;
+  padding: 40px clamp(24px, 4vw, 56px) 80px;
+  background: var(--ing-ink-25);
+  color: var(--ing-ink-800);
+}
+.preview-page h1.preview-title {
+  font-size: 28px; font-weight: 600; letter-spacing: -0.01em;
+  margin: 0 0 4px; color: var(--ing-ink-900);
+}
+.preview-page p.preview-lede {
+  margin: 0 0 36px; color: var(--ing-ink-500); max-width: 68ch; font-size: 14px;
+}
+.preview-section-title {
+  font-size: 11px; font-weight: 600; color: var(--ing-ink-500);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 36px 0 14px;
+}
+.preview-section-title:first-of-type { margin-top: 8px; }
+.preview-card {
+  background: var(--ing-ink-0);
+  border: var(--ing-border);
+  border-radius: var(--ing-radius-lg);
+  padding: 24px;
+  box-shadow: var(--ing-shadow-xs);
+}
+.preview-grid {
+  display: grid; gap: 16px;
+}
+.preview-callout {
+  font-size: 12px; color: var(--ing-ink-500);
+  margin-top: 6px;
+}
