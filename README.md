@@ -27,7 +27,7 @@ Each workflow is a list of **steps**. New per step:
 
 Construction workflows have no concept of a role: no Role column and no **Anyone with role** option. Steps name specific people. **Type** is the second column, after Sequence, on both tabs.
 
-"Add User" is renamed **Add Step**. A path line under each workflow summarises its steps.
+"Add User" is renamed **Add Step**.
 
 ## Demo walkthrough
 
